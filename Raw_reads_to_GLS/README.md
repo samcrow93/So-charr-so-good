@@ -130,7 +130,7 @@ sbatch --export=ALL,chromsnuc=$chromsnuc,paramfile=charr_WGS_params_main.txt,ang
 done < chromsnuc
 ```
 
-##### HOWEVER: MISTAKES WERE MADE ######
+## HOWEVER: MISTAKES WERE MADE
 It turns out that there was originally a typo in my angsd_params.txt file:
 The 'minInd' variable was actually spelled as 'midInd'
 Apparently, ANGSD will not fail out if it cannot find that variable, but instead will just carry on and not do any filtering based on coverage at each site across individuals....
