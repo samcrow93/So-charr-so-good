@@ -1,1 +1,168 @@
+## This section outlines steps taken from processing raw fastq files through to generation of genotype likelihoods
+### Note that this readme file describes workflow for main batch of samples, however there are two other batches of samples (published data downloaded from the NCBI sequence read archive) that were processed using similar scripts.
+### Also note that due to the very large size of this dataset, a number of steps had to be repeated due to jobs failing out from lack of time and/or memory for certain samples (especially the alignment step)
+
+### 1.0) Create parameters file (charr_WGS_params_main.txt)
+The following text is within the parameters file (specify where software and genome is located):
+- Note that trimming was run separately for samples downloaded from NCBI 
+```
+#locations
+#main directory for project (where raw fastq files are stored)
+projdir=/path_to_files/
+
+#genome file location
+genome=/path_to_genome
+
+#genus
+genus=$(echo Salvelinus)
+
+#software
+#trimming
+fastp=/home/samcrow/programs/fastp
+```
+
+### 2.0) Read Trimming
+Use job script 01_fastp.sh
+
+### 3.0) Index Genome
+Run script 02_index_genome.sh
+
+### 4.0) Alignment
+Trimmed fastq files are quite large, so run each sample as a separate job
+
+### 4.1) Create Sets
+Create set files that each contain one sample name as follows:
+```
+# Create list of sampled names:
+ls *R1.trimmed.fastq.gz | \
+ sed 's/\_R1.trimmed.fastq.gz//' > sets/charr_NL_inds.tsv
+
+# Split samples into one per set file:
+split -l 1 \
+ -d \
+../sets/charr_NL_inds.tsv \
+../sets/NL_sets/charr_NL.set
+```
+
+### 4.2) Submit alignment jobs
+Submit 03_bwamem_align_NL.sh script as follows:
+```
+for i in {00..#total_align_sets}
+do
+sbatch --export=ALL,set=charr_NL.set$i,paramfile=charr_WGS_params_main.txt 03_bwamem_align_NL.sh
+done
+```
+
+### 5.0) Refining alignments - Preparation
+Use the genome analysis toolkit (gatk) to remove sequence duplicates.
+First, need to create a directory for the temporary files made by gatk:
+```
+mkdir gatktemp
+```
+
+Create different set of set files for dedup steps (much quicker than alignment, so can have more samples in each set i.e. more samples per individual job)
+```
+# Use same file list as before:
+split -l 100 \
+ -d \
+../sets/charr_NL_inds.tsv \
+../sets/NL_dedup_index/NL_dupindex.set
+```
+
+Next, submit the 04_mark_dups_NL.sh jobscript as follows:
+```
+for i in {00..#total_dedup_sets}
+do
+sbatch --export=ALL,set=NL_dupindex.set$i,paramfile=charr_WGS_params_main.txt 04_mark_dups_NL.sh
+done
+```
+
+The deduplicated alignment files also needs to be indexed (using the 05_index_dedup.sh script):
+```
+for i in {00..#total_dedup_sets)
+do
+sbatch --export=ALL,set=NL_dupindex.set$i,paramfile=charr_WGS_params_main.txt 05_index_dedup.sh
+done
+```
+
+### 6.0) Refining alignments- indel realignment
+First, need to identify realignment targets using GATK (deprecated version) using 06_indel_target.sh script:
+```
+for i in {00..#total_dedup_sets}
+do
+sbatch --export=ALL,set=NL_dupindex.set$i,paramfile=charr_WGS_params_main.txt 06_indel_target.sh
+done
+```
+
+Then, actually update the alignments (using 07_indel_realign.sh script):
+```
+for i in {00..#total_align_sets}
+do
+sbatch --export=ALL,set=charr_NL.set$i,paramfile=charr_WGS_params_main.txt 07_indel_realign.sh
+done
+```
+
+### 7.0 Genotype likelihoods using ANGSD
+## 7.1) Create ANGSD parameters file called angsd_params.txt with the following parameters:
+```
+bamfile=/home/samcrow/scratch/charr_wgs/all_charr/scripts/bamlist.tsv
+runname=charr
+minInd=1540
+minDepth=3850
+```
+
+## 7.2 Create bamlist.tsv file (list of all bamfiles)
+```
+ls /path_to_bams/*.realigned.bam > bamlist.tsv
+```
+
+Also need to create list of chromosomes (get from genome) 
+```
+cut -f1 /path_to_genome/genome.fna.fai | grep "sal" > chromsnuc
+```
+
+### 7.3) Run ANGSD
+Submit 08_angsd_chromos.sh script as follows:
+```
+while read chromsnuc
+do
+sbatch --export=ALL,chromsnuc=$chromsnuc,paramfile=charr_WGS_params_main.txt,angsdparam=angsd_params.txt 08_angsd_chromos.sh
+done < chromsnuc
+```
+
+##### HOWEVER: MISTAKES WERE MADE ######
+It turns out that there was originally a typo in my angsd_params.txt file:
+The 'minInd' variable was actually spelled as 'midInd'
+Apparently, ANGSD will not fail out if it cannot find that variable, but instead will just carry on and not do any filtering based on coverage at each site across individuals....
+
+SO
+
+### 8.0 Re-Run ANGSD
+This next ANGSD run includes the same parameters as the first, but now also includes the minInd filter
+Additionally, I limit the sites to only those output in the first run (to cut down on time requirements, which were huge during the first run, up to 7+ days depending on chromosome!)
+
+### 8.1) Generate sites files for each chromosome (using .pos.gz files output from first run), index these, and also generate chromosome files to specify region:
+```
+# Make sites directory
+mkdir sites
+# create sites files for each chromosome (sal01 given as example below)
+zcat charr.sal01.pos.gz | cut -f1,2 | tail -n +2 > sites/sites01.list
+
+# Index sites file
+module load StdEnv/2023 angsd/0.940
+angsd sites index sites01.list
+
+# Generate chromosome files
+echo "sal01" > sites/chroms01.txt
+```
+
+### 8.2) Using tailored job scripts for each chromosome (based on memory used and time requirements from first run), submit separate ANGSD jobs for each chromosome:
+```
+sbatch angsd_sal01_redo_filter.sh
+```
+
+
+
+
+
 
