@@ -4,7 +4,7 @@
 
 ### 1.0) Create parameters file (charr_WGS_params_main.txt)
 The following text is within the parameters file (specify where software and genome is located):
-- Note that trimming was run separately for samples downloaded from NCBI 
+
 ```
 #locations
 #main directory for project (where raw fastq files are stored)
