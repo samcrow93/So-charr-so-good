@@ -103,7 +103,7 @@ done
 ```
 
 ### 7.0 Genotype likelihoods using ANGSD
-## 7.1) Create ANGSD parameters file called angsd_params.txt with the following parameters:
+### 7.1) Create ANGSD parameters file called angsd_params.txt with the following parameters:
 ```
 bamfile=/home/samcrow/scratch/charr_wgs/all_charr/scripts/bamlist.tsv
 runname=charr
@@ -111,7 +111,7 @@ minInd=1540
 minDepth=3850
 ```
 
-## 7.2 Create bamlist.tsv file (list of all bamfiles)
+### 7.2 Create bamlist.tsv file (list of all bamfiles)
 ```
 ls /path_to_bams/*.realigned.bam > bamlist.tsv
 ```
