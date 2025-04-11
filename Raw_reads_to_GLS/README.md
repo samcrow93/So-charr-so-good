@@ -161,6 +161,11 @@ echo "sal01" > sites/chroms01.txt
 sbatch angsd_sal01_redo_filter.sh
 ```
 
+### 8.3) In the end, I decided to split up a number of chromosomes and run ANGSD separately on the different sections, due to resource issues (many smaller jobs queued and ran faster than one huge job per chromosome. Also didn't limit these jobs to sites genotyped previously, because it didn't seem to help runtime at all)
+# *** STUFF FOR THIS PART***
+
+### 8.4) Concatenate beagle and bcf files for each chromosome section together, then all chromosomes together
+# *** STUFF FOR THIS PART***
 
 
 
