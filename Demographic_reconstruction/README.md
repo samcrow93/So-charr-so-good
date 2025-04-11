@@ -8,4 +8,6 @@ On Cedar cluster, run:
 ```
 module load StdEnv/2020 plink/1.9b_6.21-x86_64
 plink -vcf filt_charr_concat.vcf -aec -make-bed -const-fid -out plink_files/filt_charr_concat
+# Then convert to .ped and .map files:
+plink --bfile filt_charr_concat --aec --recode --tab --out filt_charr_concat 
 ```
