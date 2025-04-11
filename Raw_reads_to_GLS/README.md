@@ -164,7 +164,10 @@ sbatch angsd_sal01_redo_filter.sh
 ### 8.3) In the end, I decided to split up a number of chromosomes and run ANGSD separately on the different sections, due to resource issues (many smaller jobs queued and ran faster than one huge job per chromosome. Also didn't limit these jobs to sites genotyped previously, because it didn't seem to help runtime at all)
 # *** STUFF FOR THIS PART***
 
-### 8.4) Concatenate beagle and bcf files for each chromosome section together, then all chromosomes together
+### 8.4) Remove low-depth individuals as identified earlier from new set of beagle and bcf files
+# *** STUFF FOR THIS PART***
+
+### 8.5) Concatenate beagle and bcf files (with low-depth inds filtered out) for each chromosome section together, then all chromosomes together
 # *** STUFF FOR THIS PART***
 
 
