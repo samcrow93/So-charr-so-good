@@ -11,3 +11,6 @@ plink -vcf filt_charr_concat.vcf -aec -make-bed -const-fid -out plink_files/filt
 # Then convert to .ped and .map files:
 plink --bfile filt_charr_concat --aec --recode --tab --out filt_charr_concat 
 ```
+
+### 3.0) Run GONE2
+Submit gone2.sh script
