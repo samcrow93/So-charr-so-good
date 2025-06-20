@@ -1,8 +1,8 @@
-# This section describes how to filter dataset further based on:
-## 1) Identifying and excluding likely paralogous loci;
-## 2) Removing SNPs in sex-linked regions   
-
-### 1) Identifying likely paralogous loci using ngsParalog (Linderoth 2018)
+# **This section describes how to filter dataset further based on:**
+## **1) Identifying and excluding likely paralogous loci;**
+## **2) Removing SNPs in sex-linked regions** 
+---
+### 1. Identifying likely paralogous loci using ngsParalog (Linderoth 2018)
 ### A couple steps to this:
 ### a) ngsParalog only accepts samtools-generated mpileup files as input, so need to generate mpileup files
 - Generating mpileup files with samtools for this dataset is VERY slow
