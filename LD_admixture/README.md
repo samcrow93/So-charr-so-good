@@ -1,8 +1,7 @@
 ## Now that we have beagle files with low-depth individuals filtered out, we can move on to more filtering!
 ## This includes:
 ### 1) Identifying and filtering out potentially paralogous loci
-### 2) Identifying and excluding loci in sex-linked regions
-### 3) Pruning loci in LD
+### 2) Pruning loci in LD
 
 ### So, without further ado, onto part 1...
 ### 1) Identifying and filtering out potentially paralogous loci
@@ -28,3 +27,12 @@ done
 ```
 
 Now we have beagle files that have been filtered of likely paralogous loci and are ready to be LD-filtered. 
+Initially, I filtered not super stringently, and used the paralog-pruned files without further pruning - this took a very long time!
+Instead, going forward I decided to a) subsample the paralog-pruned files to every 10th SNP, then run more stringent LD-pruning.
+
+
+
+
+
+
+
