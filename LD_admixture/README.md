@@ -61,6 +61,16 @@ zcat ../../sal01.para_filt.beagle.gz | grep -f sal01_unlinked.txt -Fw | gzip > l
 ```
 ** NOTE: these beagle files do not have a header!! **
 
+f) Concatenate chromosone files and add header back to prep for ngsadmix:
+```
+# Add header from lowfilt file
+zcat lowfilt.sal01.beagle.gz | head -n 1 | gzip > /parafilts/subsampled_parafilt/ngsld_out_bigkbdist/ldfilt_subsamp_bigkb/concat_charr_bigkb_para_subsamp.beagle.gz
+# Add each chromosome file sequentially
+zcat sal01_bigkb_para_subsamp.beagle.gz | gzip >> concat_charr_bigkb_para_subsamp.beagle.gz # repeat for other chromosome files
+```
+
+
+
 
 
 
