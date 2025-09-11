@@ -30,6 +30,34 @@ Now we have beagle files that have been filtered of likely paralogous loci and a
 Initially, I filtered not super stringently, and used the paralog-pruned files without further pruning - this took a very long time!
 Instead, going forward I decided to a) subsample the paralog-pruned files to every 10th SNP, then run more stringent LD-pruning.
 
+### 2) NGSLD
+a) Subsample low-filtered, paralog-filtered beagle files by selecting every 10th line. Also remove first three columns (recommendation from https://github.com/therkildsen-lab/genomic-data-analysis/blob/master/markdowns/ld.md#ld-estimation):
+```
+zcat sal01.para_filt.beagle.gz | awk 'NR % 10 == 0' | cut -f 4- | gzip  > sal01_subsamp_para.beagle.gz
+```
+
+b) Create position file that matches subsampled beagle file (which no longer has position info): The line below will separate the position from chromosome by replacing _ with tab, then selects only the first 2 cols, then every 10 lines:
+```
+zcat sal01.para_filt.beagle.gz | sed 's/_/\t/g' | cut -f 1,2 | awk 'NR % 10 == 0' | gzip > subsampled_parafilt/sal01_subsamp_para.pos.gz
+```
+
+c) Run ngsld_bigkb.sh script for each chromosome:
+```
+for chrom in sal01 sal02 #etc to sal39
+do
+sbatch --export=ALL,chrom=$chrom ngsld_bigkb.sh
+done
+```
+
+d) Run ngsld_prune_bigkb.sh script (submit same as for script in step above). This will output a file with a list of chromosomes and positions of sites that are in linkage equilibrium. Modify this file so that chromosomes and positions are separated by a tab instead of a :
+```
+sed -e 's/\:\+/_/g' sal01.subsamp_bigkb_unlinked.pos > sal01_unlinked.txt
+```
+
+e) Instead of running ANGSD again for only the unlinked sites, prune paralog-filtered beagle files for only unlinked sites identified in steps above:
+```
+zcat ../../sal01.para_filt.beagle.gz | grep -f sal01_unlinked.txt -Fw | gzip > ldfilt_subsamp_bigkb/sal01_bigkb_para_subsamp.beagle.gz
+```
 
 
 
