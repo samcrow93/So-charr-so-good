@@ -25,6 +25,7 @@ do
 sbatch --export=ALL,chrom=$chrom remove_dev_snps.sh
 done
 ```
+** Note: these beagle files do not have a header!! **
 
 Now we have beagle files that have been filtered of likely paralogous loci and are ready to be LD-filtered. 
 Initially, I filtered not super stringently, and used the paralog-pruned files without further pruning - this took a very long time!
@@ -58,6 +59,7 @@ e) Instead of running ANGSD again for only the unlinked sites, prune paralog-fil
 ```
 zcat ../../sal01.para_filt.beagle.gz | grep -f sal01_unlinked.txt -Fw | gzip > ldfilt_subsamp_bigkb/sal01_bigkb_para_subsamp.beagle.gz
 ```
+** NOTE: these beagle files do not have a header!! **
 
 
 
