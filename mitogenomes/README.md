@@ -29,3 +29,53 @@ do
 sbatch --export=set=mt_NL_charr.set$i bwamem_mito_NL.sh
 done
 ```
+
+### 2.0) Refining mito alignments - Preparation
+Use the genome analysis toolkit (gatk) to remove sequence duplicates.
+First, need to create a directory for the temporary files made by gatk:
+```
+mkdir gatktemp
+```
+
+Create different set of set files for dedup steps (much quicker than alignment, so can have more samples in each set i.e. more samples per individual job)
+```
+# Use same file list as before:
+split -l 100 \
+ -d \
+NL_mt_inds.tsv \
+mt_align_sets/NL_dedup_index/NL_dupindex.set
+```
+
+Next, submit the mark_dups_mito_NL.sh jobscript as follows:
+```
+for i in {00..#total_dedup_sets}
+do
+sbatch --export=set=NL_dupindex.set$i mark_dups_mito_NL.sh
+done
+```
+
+The deduplicated alignment files also needs to be indexed (using the index_dedup_mito_NL.sh script):
+```
+for i in {00..#total_dedup_sets)
+do
+sbatch --export=set=NL_dupindex.set$i index_dedup_mito_NL.sh
+done
+```
+
+### 3.0) Refining mito alignments- indel realignment
+First, need to identify realignment targets using GATK (deprecated version) using indel_target_mito_NL.sh script:
+```
+for i in {00..#total_dedup_sets}
+do
+sbatch --export=set=NL_dupindex.set$i indel_target_mito_NL.sh
+done
+```
+
+Then, actually update the alignments (using indel_realign_mito_NL.sh script):
+```
+for i in {00..#total_align_sets}
+do
+sbatch --export=set=NL_dupindex.set$i indel_realign_mito_NL.sh
+done
+```
+
