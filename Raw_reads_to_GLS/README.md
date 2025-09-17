@@ -88,10 +88,6 @@ done
 ### 6.0) Refining alignments- indel realignment
 First, need to identify realignment targets using GATK (deprecated version) using 06_indel_target.sh script:
 ```
-# First need to create .dict file (not already part of mitogenome ref files downloaded from NCBI):
-gatk CreateSequenceDictionary -R swedish_ref_mito.fasta
-
-# Then submit indel target script:
 for i in {00..#total_dedup_sets}
 do
 sbatch --export=ALL,set=NL_dupindex.set$i,paramfile=charr_WGS_params_main.txt 06_indel_target.sh
