@@ -65,6 +65,10 @@ done
 ### 3.0) Refining mito alignments- indel realignment
 First, need to identify realignment targets using GATK (deprecated version) using indel_target_mito_NL.sh script:
 ```
+# First need to create .dict file (not already part of mitogenome ref files downloaded from NCBI):
+gatk CreateSequenceDictionary -R swedish_ref_mito.fasta
+
+# Then submit jobs:
 for i in {00..#total_dedup_sets}
 do
 sbatch --export=set=NL_dupindex.set$i indel_target_mito_NL.sh
