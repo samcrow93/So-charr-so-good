@@ -1,3 +1,9 @@
+## PCANGSD and NGSadmix
+
+### 1) PCANGSD
+Using the beagle files with very low-depth samples removed, run PCANGSD on a per-chromosome basis as well as genome-wide on all chromosomes concatenated together
+
+
 
 
 ### 3) ngsAdmix
