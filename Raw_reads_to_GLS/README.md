@@ -28,10 +28,9 @@ Use job script 01_fastp.sh
 Run script 02_index_genome.sh
 
 ### 4.0) Alignment
-Trimmed fastq files are quite large, so run each sample as a separate job
+Trimmed fastq files are quite large, so run each sample as a separate job:
 
-4.1) Create Sets
-Create set files that each contain one sample name as follows:
+4.1) Create set files that each contain one sample name as follows:
 ```
 # Create list of sampled names:
 ls *R1.trimmed.fastq.gz | \
@@ -44,8 +43,7 @@ split -l 1 \
 ../sets/NL_sets/charr_NL.set
 ```
 
-4.2) Submit alignment jobs
-Submit 03_bwamem_align_NL.sh script as follows:
+4.2) Submit 03_bwamem_align_NL.sh script as follows:
 ```
 for i in {00..#total_align_sets}
 do
@@ -60,7 +58,7 @@ First, need to create a directory for the temporary files made by gatk:
 mkdir gatktemp
 ```
 
-Create different set of set files for dedup steps (much quicker than alignment, so can have more samples in each set i.e. more samples per individual job)
+Create different set of set files for dedup steps (much quicker than alignment, so can have more samples in each set i.e. more samples per individual job):
 ```
 # Use same file list as before:
 split -l 100 \
@@ -103,7 +101,7 @@ done
 ```
 
 ### 7.0 Genotype likelihoods using ANGSD
-### 7.1) Create ANGSD parameters file called angsd_params.txt with the following parameters:
+7.1) Create ANGSD parameters file called angsd_params.txt with the following parameters:
 ```
 bamfile=/home/samcrow/scratch/charr_wgs/all_charr/scripts/bamlist.tsv
 runname=charr
@@ -111,18 +109,17 @@ minInd=1540
 minDepth=3850
 ```
 
-### 7.2 Create bamlist.tsv file (list of all bamfiles (n=1920)- note that this includes 4 duplicate samples as well as negatives)
+7.2 Create bamlist.tsv file (list of all bamfiles (n=1920)- note that this includes 4 duplicate samples as well as negatives):
 ```
 ls /path_to_bams/*.realigned.bam > bamlist.tsv
 ```
 
-Also need to create list of chromosomes (get from genome) 
+Also need to create list of chromosomes (get from genome):
 ```
 cut -f1 /path_to_genome/genome.fna.fai | grep "sal" > chromsnuc
 ```
 
-### 7.3) Run ANGSD
-Submit 08_angsd_chromos.sh script as follows:
+7.3) Run ANGSD: Submit 08_angsd_chromos.sh script as follows:
 ```
 while read chromsnuc
 do
@@ -141,7 +138,7 @@ SO
 This next ANGSD run includes the same parameters as the first, but now also includes the minInd filter
 Additionally, I limit the sites to only those output in the first run (to cut down on run time requirements, which were huge during the first run, up to 7+ days depending on chromosome!)
 
-### 8.1) Generate sites files for each chromosome (using .pos.gz files output from first run), index these, and also generate chromosome files to specify region:
+8.1) Generate sites files for each chromosome (using .pos.gz files output from first run), index these, and also generate chromosome files to specify region:
 ```
 # Make sites directory
 mkdir sites
@@ -156,7 +153,7 @@ angsd sites index sites01.list
 echo "sal01" > sites/chroms01.txt
 ```
 
-### 8.2) Using tailored job scripts for each chromosome (based on memory used and time requirements from first run), submit separate ANGSD jobs for each chromosome:
+8.2) Using tailored job scripts for each chromosome (based on memory used and time requirements from first run), submit separate ANGSD jobs for each chromosome:
 ```
 sbatch angsd_sal01_redo_filter.sh
 ```
@@ -164,9 +161,9 @@ sbatch angsd_sal01_redo_filter.sh
 ** In the end, I decided to split up a number of chromosomes and run ANGSD separately on the different sections, due to resource issues (many smaller jobs queued and ran faster than one huge job per chromosome. Also didn't limit these jobs to sites genotyped previously, because it didn't seem to help runtime at all) **
 
 ### 9.0) Remove low-depth individuals as identified earlier from beagle files 
-### 9.1) Calculate average depth and coverage for each individual for each chromosome using samtools coverage (use 09_depth_from_bams.sh script). This will generate a .txt file for each sample.
+9.1) Calculate average depth and coverage for each individual for each chromosome using samtools coverage (use 09_depth_from_bams.sh script). This will generate a .txt file for each sample.
 
-### 9.2) Concatenate all sample .txt files with per-chromosome mean depth, coverage, and quality info:
+9.2) Concatenate all sample .txt files with per-chromosome mean depth, coverage, and quality info:
 ```
 cd depth_files
 output_file="concat_depth.txt"
@@ -181,7 +178,7 @@ done
 ```
 This will return a file of all the coverage/depth info per sample concatenated, with the file name in a new column.
 
-### 9.3) Next, need to search for samples with very low depth (use coverage= 0.5x for nuclear chromosomes).
+9.3) Next, need to search for samples with very low depth (use coverage= 0.5x for nuclear chromosomes).
 ```
 awk '$7 < 0.5 && /NC_049/' concat_depth.txt | awk '{print $10}' | sort -u >> low_samples.txt
 ```
@@ -190,7 +187,7 @@ Cleanup: Delete the ".realigned.bam" from each line in the file
 sed -i 's/\.realigned\.bam//g' low_samples.txt
 ```
 
-### 9.4) Remove low-depth individuals (low_samples.txt) from beagle files):
+9.4) Remove low-depth individuals (low_samples.txt) from beagle files):
 To remove individuals from a beagle file is very clunky. First, need to match sample names in bamlist.tsv to "Ind#" names used in beagle file:
 ```
 # Print the row number corresponding to each sample (order in which beagle files were generated):
@@ -198,7 +195,7 @@ awk '{print $0,NR}' bamlist.tsv > bamlist_rownumbers.txt
 ```
 Have to go through the file manually to figure out the numbers for the samples listed in the lownuc_samples.txt file above. Explanation for how this is done is given in actual jobscript (10_remove_lowdepth_inds_filt.sh). Running this script will prune beagle files of the low-depth individuals needing to be excluded from downstream analysis: 1920 original files - 38 low-depth files = 1882 remaining files. The file lowfilts.txt will contain samples that have average per-chromosome depths greater than 0.5X. There are 1882 samples in the file, but note that this corresponds to 1878 unique fish (4 fish were sequenced twice- but keep these duplicates in for downstream analyses for now). 
 
-### 9.5) Concatenate chromosome beagle files (with low-depth inds filtered out) together (for use in whole-genome PCA visualization) by running 11_concat_lowfilt_beagles.sh.
+9.5) Concatenate chromosome beagle files (with low-depth inds filtered out) together (for use in whole-genome PCA visualization) by running 11_concat_lowfilt_beagles.sh.
 
 
 
