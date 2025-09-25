@@ -199,5 +199,6 @@ The file lowfilts.txt will contain samples that have average depths across every
 
 9.5) Concatenate chromosome beagle files (with low-depth inds filtered out) together (for use in whole-genome PCA visualization) by running 11_concat_lowfilt_beagles.sh.
 
+### The low-filtered beagle files are now ready for use in PCANGSD, and also ready for additional processing for downstream analyses (i.e. paralog filtering, LD-filtering, admixture- see other sections of this repository).
 
 
