@@ -160,7 +160,7 @@ sbatch angsd_sal01_redo_filter.sh
 
 ** In the end, I decided to split up a number of chromosomes and run ANGSD separately on the different sections, due to resource issues (many smaller jobs queued and ran faster than one huge job per chromosome. Also didn't limit these jobs to sites genotyped previously, because it didn't seem to help runtime at all) **
 
-### 9.0) Remove low-depth individuals as identified earlier from beagle files 
+### 9.0) Remove low-depth individuals:
 9.1) Calculate average depth and coverage for each individual for each chromosome using samtools coverage (use 09_depth_from_bams.sh script). This will generate a .txt file for each sample.
 
 9.2) Concatenate all sample .txt files with per-chromosome mean depth, coverage, and quality info:
