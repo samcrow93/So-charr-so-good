@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --time=1:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
 #SBATCH --mem=1G
 #SBATCH --out=slurm.%x.%j.out
 #SBATCH --job-name=charr_LD_prune_bigkb
