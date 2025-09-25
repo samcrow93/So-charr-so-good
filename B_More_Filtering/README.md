@@ -28,7 +28,7 @@ C) Run ngsparalog (using pop_ngsparalog.sh scripts (e.g. 02_pop103_ngsparalog.sh
 
 D) Identify which SNPs should be removed based on a p-value threshold:
 - Use the 03a_paralog_filt.R and 03b_paralog_filt_job.sh scripts
-- Note that this will output a list of deviant ('BAD' i.e. likely having mismapped reads) SNPs, across ALL population (this means that many loci will be duplicated if they are deviant in multiple populations- output in the dev_sites.txt file)
+- Note that this will output a list of deviant ('BAD' i.e. likely having mismapped reads) SNPs, across ALL populations (this means that many loci will be duplicated if they are deviant in multiple populations- output in the dev_sites_all.txt file)
 
 D) Identify unique list of SNPs that are deviant in at least one population:
 ```
