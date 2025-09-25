@@ -1,14 +1,13 @@
 ## This section describes the processing of the mitogenome data
 
-## Samples were processed in steps 1-3 in the raw_reads_to_GLs section (trimming); analyses described here picks up from that point.
+### Samples were processed in steps 1-3 in the raw_reads_to_GLs section (trimming); analyses described here picks up from that point.
 
-## Note that reference genome used for nuclear data does not include a mitogenome reference; therefore the analyses here use a reference mitogenome from a difference sample (accession # CM098937 in NCBI)
+### Note that reference genome used for nuclear data does not include a mitogenome reference; therefore the analyses here use a reference mitogenome from a difference sample (accession # CM098937 in NCBI)
 
 ### 1.0) Alignment to mitogenome
 Trimmed fastq files are quite large, so run each sample as a separate job:
 
-### 1.1) Create Sets
-Create set files that each contain one sample name as follows:
+1.1) Create set files that each contain one sample name as follows:
 ```
 # Create list of sampled names:
 ls *R1.trimmed.fastq.gz | \
@@ -21,12 +20,11 @@ NL_mt_inds.tsv \
 ./mt_NL_charr.set
 ```
 
-### 1.2) Submit alignment jobs
-Submit bwamem_mito_NL.sh script as follows:
+1.2) Submit alignment jobs with 01_bwamem_mito_NL.sh script as follows:
 ```
 for i in {00..#total_align_sets}
 do
-sbatch --export=set=mt_NL_charr.set$i bwamem_mito_NL.sh
+sbatch --export=set=mt_NL_charr.set$i 01_bwamem_mito_NL.sh
 done
 ```
 
@@ -46,24 +44,24 @@ NL_mt_inds.tsv \
 mt_align_sets/NL_dedup_index/NL_dupindex.set
 ```
 
-Next, submit the mark_dups_mito_NL.sh jobscript as follows:
+Next, submit the 02_mark_dups_mito_NL.sh jobscript as follows:
 ```
 for i in {00..#total_dedup_sets}
 do
-sbatch --export=set=NL_dupindex.set$i mark_dups_mito_NL.sh
+sbatch --export=set=NL_dupindex.set$i 02_mark_dups_mito_NL.sh
 done
 ```
 
-The deduplicated alignment files also needs to be indexed (using the index_dedup_mito_NL.sh script):
+The deduplicated alignment files also needs to be indexed (using the 03_index_dedup_mito_NL.sh script):
 ```
 for i in {00..#total_dedup_sets)
 do
-sbatch --export=set=NL_dupindex.set$i index_dedup_mito_NL.sh
+sbatch --export=set=NL_dupindex.set$i 03_index_dedup_mito_NL.sh
 done
 ```
 
 ### 3.0) Refining mito alignments- indel realignment
-First, need to identify realignment targets using GATK (deprecated version) using indel_target_mito_NL.sh script:
+First, need to identify realignment targets using GATK (deprecated version) using 04_indel_target_mito_NL.sh script:
 ```
 # First need to create .dict file (not already part of mitogenome ref files downloaded from NCBI):
 gatk CreateSequenceDictionary -R swedish_ref_mito.fasta
@@ -71,15 +69,52 @@ gatk CreateSequenceDictionary -R swedish_ref_mito.fasta
 # Then submit jobs:
 for i in {00..#total_dedup_sets}
 do
-sbatch --export=set=NL_dupindex.set$i indel_target_mito_NL.sh
+sbatch --export=set=NL_dupindex.set$i 04_indel_target_mito_NL.sh
 done
 ```
 
-Then, actually update the alignments (using indel_realign_mito_NL.sh script):
+Then, actually update the alignments (using 05_indel_realign_mito_NL.sh script):
 ```
 for i in {00..#total_align_sets}
 do
-sbatch --export=set=NL_dupindex.set$i indel_realign_mito_NL.sh
+sbatch --export=set=NL_dupindex.set$i 05_indel_realign_mito_NL.sh
 done
 ```
+
+### 4.0) Exclude samples with low depths
+Use same approach as for nuclear data to identify individuals with low average depths on the mitogenome (< 15X):
+A) Run 06_mito_depth_from_bams.sh script;
+
+B) Next, need to concatenate all .txt files with depth and coverage info:
+```
+cd depth_files
+output_file="concat_depth.txt"
+touch $output_file
+
+for f in *realigned.bam.txt
+do filename=$(basename "$f")
+filename="${filename%.*}"
+echo "Appending file: $f"
+tail -n +2 "$f" | awk -v filename="$filename" '{print $0 "\t" filename}' >> "$output_file"
+done
+```
+This will return a file of all the coverage/depth info per sample concatenated, with the file name in a new column.
+
+C) Identify which samples have mean depth < 15X:
+```
+awk '$7 < 15 && /CM098937.1/' concat_depth.txt | awk '{print $10}' | sort -u > lowmito_charr_samples.txt
+# These samples all end with the suffix .mito_swedish_realigned.bam
+```
+
+D) Create new sample list of only those with mean depths >= 15X:
+```
+# Generate list of sample names for which there are realigned bams:
+ls *.mito_swedish_realigned.bam.txt  | sed 's/\.txt//' > mt_inds.tsv
+# Reverse grep to remove low depth samples from full sample list:
+grep -v -F -f lowmito_charr_samples.txt mt_inds.tsv > mt_inds_freebayes.txt
+```
+
+E) Run freebayes using 07_freebayes_mito.sh
+
+
 
