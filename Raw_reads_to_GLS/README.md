@@ -155,7 +155,7 @@ echo "sal01" > sites/chroms01.txt
 
 8.2) Using tailored job scripts for each chromosome (based on memory used and time requirements from first run), submit separate ANGSD jobs for each chromosome:
 ```
-sbatch angsd_sal01_redo_filter.sh
+sbatch 8.5_angsd_sal01_redo_filter.sh
 ```
 
 ** In the end, I decided to split up a number of chromosomes and run ANGSD separately on the different sections, due to resource issues (many smaller jobs queued and ran faster than one huge job per chromosome. Also didn't limit these jobs to sites genotyped previously, because it didn't seem to help runtime at all) **
