@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=48:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=0
-#SBATCH --cpus-per-task=32
-#SBATCH --nodes=1
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
+#SBATCH --cpus-per-task=
+#SBATCH --nodes=
 #SBATCH --job-name=charr_fastp
 
 
