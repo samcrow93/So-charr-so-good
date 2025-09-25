@@ -182,10 +182,6 @@ This will return a file of all the coverage/depth info per sample concatenated, 
 ```
 awk '$7 < 0.5 && /NC_049/' concat_depth.txt | awk '{print $10}' | sort -u >> low_samples.txt
 ```
-Cleanup: Delete the ".realigned.bam" from each line in the file
-```
-sed -i 's/\.realigned\.bam//g' low_samples.txt
-```
 
 9.4) Remove low-depth individuals (low_samples.txt) from beagle files):
 To remove individuals from a beagle file is very clunky. First, need to match sample names in bamlist.tsv to "Ind#" names used in beagle file:
@@ -193,7 +189,13 @@ To remove individuals from a beagle file is very clunky. First, need to match sa
 # Print the row number corresponding to each sample (order in which beagle files were generated):
 awk '{print $0,NR}' bamlist.tsv > bamlist_rownumbers.txt
 ```
-Have to go through the file manually to figure out the numbers for the samples listed in the lownuc_samples.txt file above. Explanation for how this is done is given in actual jobscript (10_remove_lowdepth_inds_filt.sh). Running this script will prune beagle files of the low-depth individuals needing to be excluded from downstream analysis: 1920 original files - 38 low-depth files = 1882 remaining files. The file lowfilts.txt will contain samples that have average per-chromosome depths greater than 0.5X. There are 1882 samples in the file, but note that this corresponds to 1878 unique fish (4 fish were sequenced twice- but keep these duplicates in for downstream analyses for now). 
+Have to go through the file manually to figure out the numbers for the samples listed in the lownuc_samples.txt file above. Explanation for how this is done is given in actual jobscript (10_remove_lowdepth_inds_filt.sh). Running this script will prune beagle files of the low-depth individuals needing to be excluded from downstream analysis: 1920 original files - 38 low-depth files (including negatives) = 1882 remaining files. 
+
+Also generate an updated list of files (low-depth ones removed) to be used in downstream analyses:
+```
+grep -v -F -f low_samples.txt bamlist.tsv > lowfilts.txt
+```
+The file lowfilts.txt will contain samples that have average depths across every chromosome greater than 0.5X. There are 1882 samples in the file, but note that this corresponds to 1878 unique fish (4 fish were sequenced twice- but keep these duplicates in for downstream analyses for now). 
 
 9.5) Concatenate chromosome beagle files (with low-depth inds filtered out) together (for use in whole-genome PCA visualization) by running 11_concat_lowfilt_beagles.sh.
 
