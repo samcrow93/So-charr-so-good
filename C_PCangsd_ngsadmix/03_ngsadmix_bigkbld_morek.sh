@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --time=24:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
 #SBATCH --mem=10G
 #SBATCH --output=slurm.%x.%j.out
 #SBATCH --job-name=ngsadmix_ldpruned_bigkb_para_subsamp
