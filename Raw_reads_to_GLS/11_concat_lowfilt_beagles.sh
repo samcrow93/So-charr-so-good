@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=1:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=1G
-#SBATCH --output=slurm.%x.%j.out
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
+#SBATCH --output=
 #SBATCH --job-name=concat_charr_lowfilt
 
 cd /home/samcrow/scratch/charr_wgs/redo_angsd/angsd_filt_outs/lowfilts/
