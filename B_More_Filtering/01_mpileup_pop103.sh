@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --time=12:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
 #SBATCH --mem=1G
 #SBATCH --output=slurm.%x.%j.out
 #SBATCH --job-name=mpileup_pop103
