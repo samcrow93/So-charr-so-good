@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=24:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem-per-cpu=5G
-#SBATCH --cpus-per-task=32
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem-per-cpu=
+#SBATCH --cpus-per-task=
 #SBATCH --job-name=angsd_chromos
 
 #load variables
