@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=6:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --ntasks=32
-#SBATCH --mem-per-cpu=5G
-#SBATCH --cpus-per-task=1
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --ntasks=
+#SBATCH --mem-per-cpu=
+#SBATCH --cpus-per-task=
 #SBATCH --job-name=indel_target_charr
 
 cd /home/samcrow/scratch/charr_wgs/all_charr/
