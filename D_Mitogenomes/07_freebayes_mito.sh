@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --time=48:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
 #SBATCH --mem=35G
 #SBATCH --out=slurm.%x.%j.out
 #SBATCH --job-name=mito_freebayes_charr
