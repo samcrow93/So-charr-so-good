@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --time=168:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=120G
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
 #SBATCH --job-name=angsd_sal01_redo_filter
 
 cd /home/samcrow/scratch/charr_wgs/align/realigned_bams/
