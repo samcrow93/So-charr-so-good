@@ -83,9 +83,10 @@ done
 
 ### 4.0) Exclude samples with low depths
 Use same approach as for nuclear data to identify individuals with low average depths on the mitogenome (< 15X):
-A) Run 06_mito_depth_from_bams.sh script;
 
-B) Next, need to concatenate all .txt files with depth and coverage info:
+4.1) Run 06_mito_depth_from_bams.sh script;
+
+4.2) Next, need to concatenate all .txt files with depth and coverage info:
 ```
 cd depth_files
 output_file="concat_depth.txt"
@@ -100,13 +101,13 @@ done
 ```
 This will return a file of all the coverage/depth info per sample concatenated, with the file name in a new column.
 
-C) Identify which samples have mean depth < 15X:
+4.3) Identify which samples have mean depth < 15X:
 ```
 awk '$7 < 15 && /CM098937.1/' concat_depth.txt | awk '{print $10}' | sort -u > lowmito_charr_samples.txt
 # These samples all end with the suffix .mito_swedish_realigned.bam
 ```
 
-D) Create new sample list of only those with mean depths >= 15X:
+4.4) Create new sample list of only those with mean depths >= 15X:
 ```
 # Generate list of sample names for which there are realigned bams:
 ls *.mito_swedish_realigned.bam.txt  | sed 's/\.txt//' > mt_inds.tsv
@@ -114,7 +115,7 @@ ls *.mito_swedish_realigned.bam.txt  | sed 's/\.txt//' > mt_inds.tsv
 grep -v -F -f lowmito_charr_samples.txt mt_inds.tsv > mt_inds_freebayes.txt
 ```
 
-E) Run freebayes using 07_freebayes_mito.sh
+4.5) Run freebayes using 07_freebayes_mito.sh
 
 
 
