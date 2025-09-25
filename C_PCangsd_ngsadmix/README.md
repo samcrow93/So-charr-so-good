@@ -2,6 +2,7 @@
 
 ### 1) PCANGSD
 Using the beagle files with very low-depth samples removed, run PCANGSD on a per-chromosome basis as well as genome-wide on all chromosomes concatenated together.
+
 A) First, need to create a virtual environment to run python. Create this virtual environment under the /home/samcrow directory:
 ```
 virtualenv --no-download python_env
