@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=12:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --ntasks=32
-#SBATCH --cpus-per-task=1
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --ntasks=
+#SBATCH --cpus-per-task=
 #SBATCH --job-name=get_depthcoverage_from_bams
 
 cd /home/samcrow/scratch/charr_wgs/align
