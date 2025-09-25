@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=12:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem-per-cpu=10G
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --ntasks=
+#SBATCH --cpus-per-task=
+#SBATCH --mem-per-cpu=
 #SBATCH --job-name=indel_realign_charr
 
 cd /home/samcrow/scratch/charr_wgs/all_charr/
