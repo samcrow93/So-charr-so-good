@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=36:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=0
-#SBATCH --cpus-per-task=32
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
+#SBATCH --cpus-per-task=
 #SBATCH --job-name=charr_NL_bwamem_align
 
 # This script will align reads from 1407 samplesto the charr genome
