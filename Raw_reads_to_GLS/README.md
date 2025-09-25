@@ -30,7 +30,7 @@ Run script 02_index_genome.sh
 ### 4.0) Alignment
 Trimmed fastq files are quite large, so run each sample as a separate job
 
-### 4.1) Create Sets
+4.1) Create Sets
 Create set files that each contain one sample name as follows:
 ```
 # Create list of sampled names:
@@ -44,7 +44,7 @@ split -l 1 \
 ../sets/NL_sets/charr_NL.set
 ```
 
-### 4.2) Submit alignment jobs
+4.2) Submit alignment jobs
 Submit 03_bwamem_align_NL.sh script as follows:
 ```
 for i in {00..#total_align_sets}
