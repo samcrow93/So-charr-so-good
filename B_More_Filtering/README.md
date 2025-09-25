@@ -6,6 +6,7 @@
 ### So, without further ado, onto part 1...
 ### 1) Identifying and filtering out potentially paralogous loci
 First, need to make a samtools mpileup file for each population as input for ngsParalog:
+
 A) Create sites file as input for mpileup script:
 ```
 # Get positions from each beagle chromosome files to generate chromosome sites files (WITHOUT header):
