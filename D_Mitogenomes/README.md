@@ -115,7 +115,35 @@ ls *.mito_swedish_realigned.bam.txt  | sed 's/\.txt//' > mt_inds.tsv
 grep -v -F -f lowmito_charr_samples.txt mt_inds.tsv > mt_inds_freebayes.txt
 ```
 
-4.5) Run freebayes using 07_freebayes_mito.sh
+4.5) As it turns out, freebayes took a very long time (did not finish); therefore, use ANGSD -dofasta instead (run angsd_mito_dofasta.sh).
+This will generate a consensus fasta sequence for each individual that passed the >=15X cutoff (listed in mt_inds_freebayes.txt).
+
+4.6) Concatenate all fasta files together:
+```
+output="combined.fasta"
+for file in *.fa.gz;
+do
+sample=$(basename "$file" .mito_swedish_realigned.bam.fa.gz);
+zcat "$file" | while IFS= read -r line;
+do
+if [[ "$line" == ">"* ]];
+then
+echo "${line}_${sample}" >> "$output"; else echo "$line" >> "$output";
+fi;
+done;
+done
+```
+
+4.7) Run a multiple sequence alignment using Clustal Omega (using clustal_charr_mito.sh script).
+
+4.8) Excise the D-loop region (bases 1-998):
+```
+awk '/^>/ {if (seq) print substr(seq,1,998); print; seq=""; next} {seq=seq $0} END {print substr(seq,1,998)}' charr_multiseqalign.fa > test_dloop.fasta
+```
+
+4.8) Import the resulting test_dloop.fasta file into R to determine haplotypes (using charr_dloop.R script).
+
+
 
 
 
