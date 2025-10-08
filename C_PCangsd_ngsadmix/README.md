@@ -53,7 +53,7 @@ First, need to rename .out files from ngsadmix so they contain the Kvalue and re
 Next, load into R and process as follows:
 ```
 # List all .out files to checkk all is good:
-files<-list.files("./", pattern = ".out", full.names = T)
+files<-list.files("./", pattern = ".log", full.names = T)
 
 # Load in all files at once:
 all_files<-lapply(1:36, FUN = function(i) readLines(files[i]))
