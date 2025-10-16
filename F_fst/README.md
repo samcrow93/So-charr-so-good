@@ -1,13 +1,13 @@
 ## This section describes the steps used to calculated Fst (between populations and groups based on ngsadmix-generated Kvalues)
 
-### 1.0) Mask the reference genome for previously-identified paralogous loci:
+## 1.0) Mask the reference genome for previously-identified paralogous loci:
 
-# First, need to modify dev_sites_final.txt (file with unique sites identified as likely paralogous in at least one population by ngsparalog) file to have columns separated by \t instead of _:
+### First, need to modify dev_sites_final.txt (file with unique sites identified as likely paralogous in at least one population by ngsparalog) file to have columns separated by \t instead of _:
 ```
 cat dev_sites_final.txt | sed 's/\_/\t/' > dev_sites_final_tomask.txt
 ```
 
-# Next, run the following code in R to generate a list of regions with which to mask the reference genome. This code is based off that from https://github.com/xav9536/angsd_pipeline/blob/master/01_scripts/Rscripts/deviant_masking.R, and involves masking regions of 150 bp centered on paralogous loci, then combining overlapping regions.
+### Next, run the following code in R to generate a list of regions with which to mask the reference genome. This code is based off that from https://github.com/xav9536/angsd_pipeline/blob/master/01_scripts/Rscripts/deviant_masking.R, and involves masking regions of 150 bp centered on paralogous loci, then combining overlapping regions.
 ```
 # Load in ref fasta:
 index = read.table("/home/samcrow/genome/Arthur_CHR_polished.fasta.fai")
@@ -63,7 +63,7 @@ write.table(mask[,1:3],
             quote = F, row.names = F, col.names = F, sep = "\t")
 ```
 
-# Next, use bedtools to actually mask the reference genome for these regions:
+### Next, use bedtools to actually mask the reference genome for these regions:
 ```
 module load bedtools #version?
 module load samtools #version?
