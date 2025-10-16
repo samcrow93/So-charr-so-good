@@ -3,6 +3,9 @@
 ### 1.0) Begin by converting the concatenated bcf file to a vcf file
 Run bcfs_to_vcfs.sh script
 
+### 2.0) Subset vcf file to only 500000 SNPs:
+
+
 ### 2.0) Convert vcf file to plink files
 On Cedar cluster, run:
 ```
