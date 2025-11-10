@@ -52,6 +52,15 @@ bcftools index JM_concat_young_20x_noparalog_poly_biallelic_maf0.1.vcf.gz
 bcftools view -R keep_sites.txt -Oz -o JM_concat_young_20x_noparalog_poly_biallelic_maf0.1_subset1mb.vcf.gz JM_concat_young_20x_noparalog_poly_biallelic_maf0.1.vcf.gz
 ```
 
+Need to convert the vcf file to a genepop file (use PGDSpider on laptop)
+
+**** Something is going wrong: running NeEstimator flagged that each individual has some missing data (and some individuals are missing A LOT). Clearly, my filtering isn't doing what I think it's doing re: missing data...
+
+**** Need to also filter based on missing data (vcftools -max-missing 1 filters any sites that have ANY missing data)
+ 
+**** Filtering for only biallelic SNPs is ALSO not working... weird coding in genepop file? more then 2 alleles but not in vcf??
+
+
 
 
 
