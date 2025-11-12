@@ -72,3 +72,49 @@ bedtools maskfasta -fi /home/samcrow/genome/Arthur_CHR_polished.fasta -bed ./mas
 
 samtools faidx MASKED_charr_ref.fasta
 ```
+
+## Fst for 'lineage' groups based on ngsadmix outputs (K=2 or K=3 groups):
+1) For K=2, used 50 individuals that had ~100% either group1 or group2 admixture. For group3, there aren't any individuals with close to 100% group3 admixture, so choose top 50 individuals that also have <5% group2 admixture (use ngsadmix_process.R script for this selection process). List of individuals (bam files) named (for example) k3_group1_samplesforFst.txt etc.
+
+2) Use ANGSD to calculate sample allele frequency (SAF) for each group using masked reference genome on a per-chromosome basis:
+```
+for chrom in #sal01 etc
+do
+sbatch --export=chrom=$chrom saf_k2_angsd.sh     # or saf_k3_angsd.sh
+done
+```
+
+3) Next, use winsfs to calculate site frequency spectrum (SFS) for each group on a per-chromosome basis:
+```
+# For k=2, submit jobs as follows:
+for chrom in #sal01 etc
+do
+sbatch --export=chrom=$chrom winsfs_k2_angsd.sh
+done
+
+# For k=3, submit jobs as follows (slightly more complicated given the number of combinations):
+for chrom in #sal01 etc
+do
+for GROUP in group2 group3
+do
+TARGET=group1
+sbatch --export=chrom=$chrom,GROUP=$GROUP,TARGET=$TARGET winsfs_k3_angsd.sh
+done
+done
+# And then also:
+for chrom in $sal01 etc.
+do
+for GROUP in group2
+do
+TARGET=group3
+sbatch --export=chrom=$chrom,GROUP=$GROUP,TARGET=$TARGET winsfs_k3_angsd.sh
+done
+done
+```
+
+
+
+
+
+
+
