@@ -112,6 +112,38 @@ done
 done
 ```
 
+4) Next, need to calculate Fst with realSFS and the saf and sfs files:
+```
+# winsfs creates output files with a header that realSFS fst index function doesn't like, so remove header from SFS files first:
+for file in winsfs*.sfs
+do
+tail -n +2 $file > sfs_noheader/noheader.$file
+done
+
+# For each group comparison calculate Fst:
+for chrom in #sal01 etc.
+do
+realSFS fst index $chrom.group2.saf.idx $chrom.group1.saf.idx -sfs noheader.winsfs.$chrom.group1.group2.sfs -fstout fst/$chrom.group2.group1.fst
+done
+```
+
+5) Lastly, calculate windowed Fst (for window and step size of 10k bp):
+```
+for chrom in #sal01 etc.
+do
+realSFS fst stats2 $chrom.group2.group1.fst.idx -win 10000 -step 10000 > fst_window/$chrom.group2.group1.fst.txt
+done
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
