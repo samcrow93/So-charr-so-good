@@ -71,13 +71,13 @@ abs_numbers <- abs(as.numeric(numbers))
 logs=data.frame(K = rep(2:7, each=10))
 logs$like= abs_numbers
 
-# Format so R keeps 3 decimal places:
-logs$like = format(round(logs$like, 3), nsmall = 3)
-
 # Calculate delta K:
 tapply(logs$like, logs$K, FUN= function(x) mean(abs(x))/sd(abs(x)))
 
 # Largest delta K value indicates best one
+
+# Format so R keeps 3 decimal places for CLUMPAK:
+logs$like = format(round(logs$like, 3), nsmall = 3)
 ```
 
 
