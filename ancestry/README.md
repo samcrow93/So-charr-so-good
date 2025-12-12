@@ -91,7 +91,45 @@ n.x,major, minor) %>% as.data.frame()
 group2_aims_maj_min = group2_aims_full %>% rowwise() %>% mutate(major=get(major.x), minor=get(minor.x)) %>% ungroup() %>% select(chromo.x, positio
 n.x,major, minor) %>% as.data.frame()
 
+# Merge together to form the first six columns of the input file:
+group1_2_aims_maj_min = merge(group1_aims_maj_min, group2_aims_maj_min, by=c("chromo.x", "position.x")
+colnames(group1_2_aims_maj_min) = c("chrom", "pos", "major_group1", "minor_group1", "major_group2", "minor_group2")
 
+# For 7th column, need distance in Morgans between previous marker and given position. There isn't a linkage map for charr, so approximate (FOR NOW) with 1.1cM/MB constant rate:
+rec_rate_cM_MB=1.1
+group1_2_aims_maj_min_dist = group1_2_aims_maj_min %>% arrange(chrom,pos) %>% group_by(chrom) %>% mutate(dist_bp = pos -lag(pos), dist_bp = ifelse(is.na(dist_bp), 0, dist_bp), dist_M = dist_bp / 1e6 * rec_rate_cM_MB/100) %>% ungroup() %>% as.data.frame()
+
+# Next, need to load in individual counts for the AIMs for the admixed inds:
+admix_aims = read.table("../samples/charr_group3_aims.counts.gz", header=TRUE)
+
+# Need to do the same thing with the admix_aims df to get only the counts for maj and min alleles at each AIM:
+admix_aims_full= cbind(aims, admix_aims)
+
+# Mutate new major and minor columns for each ind:
+admix_aims_maj_min = admix_aims_full %>%
+  rowwise() %>%
+  mutate(across(everything(), ~ .)) # just to keep rowwise active
+
+for(ind in inds) {
+  admix_aims_maj_min <- admix_aims_maj_min %>%
+    mutate(
+      !!paste0(ind, "_maj") := get(paste0(ind, "_", major.x)),
+      !!paste0(ind, "_min") := get(paste0(ind, "_", minor.x))
+    )
+}
+# Convert to df
+admix_aims_maj_min = as.data.frame(admix_aims_maj_min)
+
+# Separate out inds major/minor only:
+inds= admix_aims_maj_min[,-c(1:16)]
+
+# Combine with group1_2_aims_maj_min_dist:
+ancestry_hmm_input = cbind(group1_2_aims_maj_min_dist, inds)
+
+# Write file!
+write.table(ancestry_hmm_input, "ancestry_hmm_input_test.txt", row.names = FALSE, sep = "\t", quote=FALSE)
+write.table(ancestry_hmm_input, "ancestry_hmm_input_test_noheader.txt", row.names = FALSE, sep = "\t", quote=FALSE, col.names=F) # might need without header
+```
 
 
 
