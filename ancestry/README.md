@@ -24,4 +24,7 @@ cat aims_filt_50kb_afdiff0.6.txt | cut -f 1,3 | tail -n +2 > sites/aims_sites/ai
 
 d) We also need allele counts for each individual at each of the AIMs for the admixed individuals we want to test. In the original ANGSD run, the counts were grouped and thus not in the individual format needed for Ancestry_HMM. Therefore, run ANGSD again using the angsd_ancestryhmm_admixinds.sh (no need to run on per-chromosome basis because list of AIMs is quite small ~2000). 
 
+d) Next, because in step A allele counts were generated for all paralog-pruned sites (not just AIMs), need to subset the output counts files for each chromosome based on AIMs list:
+
+
 
