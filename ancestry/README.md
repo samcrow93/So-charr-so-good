@@ -126,6 +126,9 @@ inds= admix_aims_maj_min[,-c(1:16)]
 # Combine with group1_2_aims_maj_min_dist:
 ancestry_hmm_input = cbind(group1_2_aims_maj_min_dist, inds)
 
+# Get rid of bp dist column:
+ancestry_hmm_input= ancestry_hmm_input[,-7]
+
 # Write file!
 write.table(ancestry_hmm_input, "ancestry_hmm_input_test.txt", row.names = FALSE, sep = "\t", quote=FALSE)
 write.table(ancestry_hmm_input, "ancestry_hmm_input_test_noheader.txt", row.names = FALSE, sep = "\t", quote=FALSE, col.names=F) # might need without header
