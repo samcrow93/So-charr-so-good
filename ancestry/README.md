@@ -57,7 +57,7 @@ for chrom in sal01 #etc
 do
 for GROUP in group1 group2
 do
-awk 'NR==FNR { rows[$1]; next } FNR in rows' $chrom.$GROUP.aims.lines.txt <(zcat ../$chrom.$GROUP.AIMref_REDO_COUNTS.counts.gz) > ../$chrom.$GROUP.aims.counts.txt
+awk 'NR==FNR { rows[$1]; next } FNR in rows' $chrom.$GROUP.aims.lines.txt <(zcat ../$chrom.$GROUP.AIMref_REDO_COUNTS.counts.gz | tail -n +2) > ../$chrom.$GROUP.aims.counts.txt
 done
 done
 ```
@@ -71,8 +71,25 @@ at $file >> concat.group1.aims.counts.txt
 done
 ```
 
-
-
+Okay this is complicated ugh, also need to modify originally-generated aims table to figure out which are the major and minor alleles at each aim locus:
+```
+# In R:
+library(dplyr)
+aims= read.table("./aims_filt_50kb_afdiff0.6.txt", header=TRUE)
+aims =arrange(aims, chromo.x, position.x)  # arrange by chromosome and position
+# Load in aims counts for each group:
+group1_aims= read.table("./concat.group1.aims.counts.txt", header=F)
+group2_aims= read.table("./concat.group2.aims.counts.txt", header=F)
+colnames(group1_aims)=c("A", "C", "G", "T")
+colnames(group2_aims)=c("A", "C", "G", "T")
+# Bind together:
+group1_aims_full= cbind(aims, group1_aims)
+group2_aims_full= cbind(aims, group2_aims)
+# Mutate new columns where the allele counts from major and minor alleles are 'chosen' from the column specifying the major and minor alleles for each site:
+group1_aims_maj_min = group1_aims_full %>% rowwise() %>% mutate(major=get(major.x), minor=get(minor.x)) %>% ungroup() %>% select(chromo.x, positio
+n.x,major, minor) %>% as.data.frame()
+group2_aims_maj_min = group2_aims_full %>% rowwise() %>% mutate(major=get(major.x), minor=get(minor.x)) %>% ungroup() %>% select(chromo.x, positio
+n.x,major, minor) %>% as.data.frame()
 
 
 
