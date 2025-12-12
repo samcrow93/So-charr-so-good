@@ -24,7 +24,54 @@ cat aims_filt_50kb_afdiff0.6.txt | cut -f 1,3 | tail -n +2 > sites/aims_sites/ai
 
 d) We also need allele counts for each individual at each of the AIMs for the admixed individuals we want to test. In the original ANGSD run, the counts were grouped and thus not in the individual format needed for Ancestry_HMM. Therefore, run ANGSD again using the angsd_ancestryhmm_admixinds.sh (no need to run on per-chromosome basis because list of AIMs is quite small ~2000). 
 
-d) Next, because in step A allele counts were generated for all paralog-pruned sites (not just AIMs), need to subset the output counts files for each chromosome based on AIMs list:
+d) Next, because in step A allele counts were generated for all paralog-pruned sites (not just AIMs), need to subset the output counts files for each chromosome based on AIMs list (note that this is clunky, but oh well):
+```
+# First, generate separate AIMs files for each chromosome:
+for chrom in sal01 #etc
+do
+grep $chrom sites/aims_sites/aims.sites > sites/aims_sites/chrom_aims/aims.$chrom.txt
+done
+
+# Next, generate files with only chrom and position for each chrom:
+for chrom in sal01 #etc.
+do
+for GROUP in group1 group2
+do
+zcat $chrom.$GROUP.AIMref.pos.gz | cut -f1,2 | tail -n +2 > aim_wrangling/$chrom.$GROUP.pos_mod.txt
+done
+done
+
+# Then, print the row numbers of where AIMs appear in the modified pos files for each chromosome.
+# The rationale here is that the .pos.gz files and the .counts.gz files have the same number of rows, but the .counts.gz files do not list the actual positions.
+# So, this is a way to get at ultimately subsetting the .counts.gz files for only AIMs.
+# From aim_wrangling directory, make lists of aims lines:
+for chrom in sal01 #etc.
+do
+for GROUP in group1 group2
+do
+awk -F'\t' 'NR==FNR{m[$0]=FNR; next} $0 in m{print m[$0]}' $chrom.$GROUP.pos_mod.txt ../sites/aims_sites/chrom_aims/aims.$chrom.txt > $chrom.$GROUP.aims.lines.txt
+done
+done
+# And lastly actually subset the counts files for only the AIMs:
+for chrom in sal01 #etc
+do
+for GROUP in group1 group2
+do
+awk 'NR==FNR { rows[$1]; next } FNR in rows' $chrom.$GROUP.aims.lines.txt <(zcat ../$chrom.$GROUP.AIMref_REDO_COUNTS.counts.gz) > ../$chrom.$GROUP.aims.counts.txt
+done
+done
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
