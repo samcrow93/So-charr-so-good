@@ -62,6 +62,14 @@ done
 done
 ```
 
+### 2) Make input files for Ancestry_HMM
+The first two columns of the input file are the chrom and position of each AIM; this is the aims.sites file. The next 4 columns are (pooled) counts of major and minor alleles for both reference panels (i.e. group1 and group2). So first, need to concatenate the chrom-specific AIM count files for each group:
+```
+for file in *group1.aims.counts* # same for group2
+do
+at $file >> concat.group1.aims.counts.txt
+done
+```
 
 
 
