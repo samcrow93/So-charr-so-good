@@ -57,18 +57,18 @@ Next, load into R and process as follows:
 files<-list.files("./", pattern = ".log", full.names = T)
 
 # Load in all files at once:
-all_files<-lapply(1:60, FUN = function(i) readLines(files[i]))
+all_files<-lapply(1:70, FUN = function(i) readLines(files[i]))
 
 # Find the line that starts with "b" (for "best like")
 library(stringr)
-likes_lines<-sapply(1:60, FUN= function(x) all_files[[x]][which(str_sub(all_files[[x]], 1, 1) == 'b')])
+likes_lines<-sapply(1:70, FUN= function(x) all_files[[x]][which(str_sub(all_files[[x]], 1, 1) == 'b')])
 
 # Print only the actual log-likelihoods (keep decimals and change to absolute value)
 numbers <- regmatches(likes_lines, regexpr("(?<=like=)-?\\d+\\.?\\d*", likes_lines, perl = TRUE))
 abs_numbers <- abs(as.numeric(numbers))
 
 # Create df that has K values and log likelihoods:
-logs=data.frame(K = rep(2:7, each=10))
+logs=data.frame(K = rep(1:7, each=10))
 logs$like= abs_numbers
 
 # Calculate delta K:
