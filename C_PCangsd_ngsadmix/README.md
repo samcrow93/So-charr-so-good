@@ -80,6 +80,30 @@ tapply(logs$like, logs$K, FUN= function(x) mean(abs(x))/sd(abs(x)))
 logs$like = format(round(logs$like, 3), nsmall = 3)
 ```
 
+Also need to take average of Q values from across 10 replicate runs for each value of K:
+```
+k2.1 = read.table("charr_bigkb_para_subsamp.2.1.qopt", header=FALSE) # repeat for each replicate and kvalue
+k2.1$sample_order= row.names(k2.1)
+# Annoyingly, ngsadmix does not always output the same group 1st in the qopt file- need to view the heads of each and rename columns accordingly
+# This is because I ran ngsadmix in a few separate runs (i.e. K=2 by itself, then K=3-6, then K=7-10)
+# Always set group1 to be the larger-proportioned group in the first sample
+head(k2.1)
+colnames(k2.1) = c("group1", "group2", "sample_order")
+
+# Then bind all replicate dfs together:
+k2_all_long = rbind(k2.1, k2.2, k2.3, k2.4, k2.5, k2.6, k2.7, k2.8, k2.9, k2.10)
+# Check the 'polarizing' of groups is correct (expect qvalues to be relatively consistent across groups for each sample):
+k2_all_long %>% filter(sample_order=="1")
+
+# Calculate mean group1 and group2 Qvalues for each sample:
+k2_means = k2_all_long %>% group_by(sample_order) %>% summarize(mean_group1= mean(group1), mean_group2= mean(group2)) %>% as.data.frame()
+
+# Write file:
+write.table(k2_means, "k2_means.txt", row.names=FALSE, col.names=TRUE, quote=FALSE, sep="\t")
+```
+
+
+
 
 
 
