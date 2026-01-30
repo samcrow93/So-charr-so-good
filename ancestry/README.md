@@ -2,18 +2,16 @@
 
 ### 1) Find Ancestry Informative Markers (AIMs) for distinguishing two main groups from ngsadmix (i.e. Arctic vs. Atlantic lineages)
 
-a) Using lists of 50 individuals that are "pure" Arctic (aka ngsadmix group1) or "pure" Atlantic (group2), run ANGSD and generate allele frequencies. Use list of sites already paralog-pruned, and polarize against the reference genome so minor allele is the same for the two groups. Do this using the angsd_ancestryhmm_ref_geno_maf.sh script on a per-chromosome basis to speed things along:
+a) Using lists of 50 individuals that are "pure" Arctic (aka ngsadmix group1) or "pure" Atlantic (group2), run ANGSD and generate allele frequencies and counts. Use list of sites already paralog-pruned, and polarize against the reference genome so minor allele is the same for the two groups. Do this using the angsd_ancestryhmm_ref_maf_counts.sh script on a per-chromosome basis to speed things along:
 ```
 for chrom in sal01 #etc
 do
 for GROUP in group1 group2;
 do
-sbatch --export=chrom=$chrom,GROUP=$GROUP angsd_ancestryhmm_ref_geno_maf.sh ;
+sbatch --export=chrom=$chrom,GROUP=$GROUP angsd_ancestryhmm_ref_maf_counts.sh ;
 done;
 done
 ```
-
-Note that this script will also generate counts of each allele for each individual, which will ultimately be useful later when actually making the Ancestry_HMM input file.
 
 b) Next, use the maf files to figure out which have large differences in frequency between the two groups, using the refpop_wrangle.R file (based off of code/script from *******CITE******). This code will also filter to have just a single SNP within a given window size, as a way of reducing LD. 
 
