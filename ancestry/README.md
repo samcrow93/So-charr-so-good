@@ -18,9 +18,34 @@ b) Next, use the maf files to figure out which have large differences in frequen
 c) Ultimatley only want the chrom and position for each AIM, so modify the output file from the previous step as follows:
 ```
 cat aims_filt_50kb_afdiff0.6.txt | cut -f 1,3 | tail -n +2 > sites/aims_sites/aims.sites
+
+# Also generate per-chrom lists of AIM sites:
+for chrom in sal01 sal02 sal03;  # etc
+do
+grep $chrom aims.50kb.sites > $chrom.aims.50kb.sites;
+done
+
+# Index these sites files for ANGSD:
+for file in *;
+do
+angsd sites index $file;
+done
 ```
 
-d) We also need allele counts for each individual at each of the AIMs for the admixed individuals we want to test. In the original ANGSD run, the counts were grouped and thus not in the individual format needed for Ancestry_HMM. Therefore, run ANGSD again using the angsd_ancestryhmm_admixinds.sh (no need to run on per-chromosome basis because list of AIMs is quite small ~2000). 
+d) We also need allele counts for each individual at each of the AIMs for the admixed individuals we want to test. Use population-specific bamlists, easier to generate AHMM input files in subsequent steps. Run ANGSD again using the angsd_ancestryhmm_admixinds.sh on a per-chrom basis, using list of AIMs.
+```
+for pop in pop;
+do
+bamlist=bams.$pop.txt;
+for chrom in chrom;
+do
+for win in 50kb 100kb;
+do
+sbatch --export=pop=$pop,bamlist=$bamlist,chrom=$chrom,win=$win angsd_ancestryhmm_admixinds.sh ;
+done;
+done;
+done
+```
 
 d) Next, because in step A allele counts were generated for all paralog-pruned sites (not just AIMs), need to subset the output counts files for each chromosome based on AIMs list (note that this is clunky, but oh well):
 ```
