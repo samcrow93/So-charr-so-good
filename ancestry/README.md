@@ -93,65 +93,74 @@ Okay this is complicated ugh, also need to modify originally-generated aims tabl
 ```
 # In R:
 library(dplyr)
-aims= read.table("./aims_filt_50kb_afdiff0.6.txt", header=TRUE)
-aims =arrange(aims, chromo.x, position.x)  # arrange by chromosome and position
+aims_50kb= read.table("./aims_filt_50kb_afdiff0.6.txt", header=TRUE)
+aims_50kb =arrange(aims_50kb, chromo.x, position.x)  # arrange by chromosome and position
 # Load in aims counts for each group:
-group1_aims= read.table("./concat.group1.aims.counts.txt", header=F)
-group2_aims= read.table("./concat.group2.aims.counts.txt", header=F)
-colnames(group1_aims)=c("A", "C", "G", "T")
-colnames(group2_aims)=c("A", "C", "G", "T")
+group1_aims_50kb = read.table("./ref_aims_counts/50kb/concat.group1.aims.counts.50kb.txt", header=F)
+group2_aims_50kb = read.table("./ref_aims_counts/50kb/concat.group2.aims.counts.50kb.txt", header=F)
+colnames(group1_aims_50kb)=c("A", "C", "G", "T")
+colnames(group2_aims_50kb)=c("A", "C", "G", "T")
 # Bind together:
-group1_aims_full= cbind(aims, group1_aims)
-group2_aims_full= cbind(aims, group2_aims)
-# Mutate new columns where the allele counts from major and minor alleles are 'chosen' from the column specifying the major and minor alleles for each site:
-group1_aims_maj_min = group1_aims_full %>% rowwise() %>% mutate(major=get(major.x), minor=get(minor.x)) %>% ungroup() %>% select(chromo.x, positio
+group1_aims_full_50kb= cbind(aims_50kb, group1_aims_50kb)
+group2_aims_full_50kb= cbind(aims_50kb, group2_aims_50kb)
+# Mutate new columns where the allele counts from major and minor alleles are 'chosen' from the column specifying the major and minor alleles for each site (i.e. when major allele is A and minor is C, choose counts from A and C columns respectively)
+group1_aims_maj_min_50kb = group1_aims_full_50kb %>% rowwise() %>% mutate(major=get(major.x), minor=get(minor.x)) %>% ungroup() %>% select(chromo.x, positio
 n.x,major, minor) %>% as.data.frame()
-group2_aims_maj_min = group2_aims_full %>% rowwise() %>% mutate(major=get(major.x), minor=get(minor.x)) %>% ungroup() %>% select(chromo.x, positio
+group2_aims_maj_min_50kb = group2_aims_full_50kb %>% rowwise() %>% mutate(major=get(major.x), minor=get(minor.x)) %>% ungroup() %>% select(chromo.x, positio
 n.x,major, minor) %>% as.data.frame()
 
 # Merge together to form the first six columns of the input file:
-group1_2_aims_maj_min = merge(group1_aims_maj_min, group2_aims_maj_min, by=c("chromo.x", "position.x")
-colnames(group1_2_aims_maj_min) = c("chrom", "pos", "major_group1", "minor_group1", "major_group2", "minor_group2")
+group1_2_aims_maj_min_50kb = merge(group1_aims_maj_min_50kb, group2_aims_maj_min_50kb, by=c("chromo.x", "position.x")
+colnames(group1_2_aims_maj_min_50kb) = c("chrom", "pos", "major_group1", "minor_group1", "major_group2", "minor_group2")
 
 # For 7th column, need distance in Morgans between previous marker and given position. There isn't a linkage map for charr, so approximate (FOR NOW) with 1.1cM/MB constant rate:
 rec_rate_cM_MB=1.1
-group1_2_aims_maj_min_dist = group1_2_aims_maj_min %>% arrange(chrom,pos) %>% group_by(chrom) %>% mutate(dist_bp = pos -lag(pos), dist_bp = ifelse(is.na(dist_bp), 0, dist_bp), dist_M = dist_bp / 1e6 * rec_rate_cM_MB/100) %>% ungroup() %>% as.data.frame()
+group1_2_aims_maj_min_dist_50kb = group1_2_aims_maj_min_50kb %>% arrange(chrom,pos) %>% group_by(chrom) %>% mutate(dist_bp = pos -lag(pos), dist_bp = ifelse(is.na(dist_bp), 0, dist_bp), dist_M = dist_bp / 1e6 * rec_rate_cM_MB/100) %>% ungroup() %>% as.data.frame()
 
 # Next, need to load in individual counts for the AIMs for the admixed inds:
-admix_aims = read.table("../samples/charr_group3_aims.counts.gz", header=TRUE)
+# For ANA pop, for exampe:
+admix_aims_50kb_ANA = read.table("../samples/50kb/concat.ahmm.ANA.samples.counts.txt", header=TRUE)
 
-# Need to do the same thing with the admix_aims df to get only the counts for maj and min alleles at each AIM:
-admix_aims_full= cbind(aims, admix_aims)
+# IMPORTANT! Not all aims in ref pops may be in admixed pops (could have been exluded due to map quality or other filters etc.) So, need to also load in positions of sites in admixed pops and subset the ref panel aims to these ones:
+admix_aims_50kb_ANA_pos = read.table("../samples/50kb/concat.ahmm.ANA.samples.pos.txt", header=TRUE)
+colnames(admix_aims_50kb_ANA_pos) = c("chrom", "pos")
 
-# Mutate new major and minor columns for each ind:
-admix_aims_maj_min = admix_aims_full %>%
-  rowwise() %>%
-  mutate(across(everything(), ~ .)) # just to keep rowwise active
+# Merge together, keeping only those in pos file (i.e. variants in admixed pop):
+group1_2_aims_maj_min_dist_50kb_ANA = merge(group1_2_aims_maj_min_dist_50kb, admix_aims_50kb_ANA_pos, by=c("chrom", "pos"),all.x=FALSE, all.y=TRUE)
 
-inds=c("ind0", "ind1", "ind2", "ind3", "ind4", "ind5", "ind6", "ind7", "ind8", "ind9", "ind10", "ind11", "ind12", "ind13", "ind14", "ind15", "ind16", "ind17", "ind18", "ind19", "ind20", "ind21", "ind22", "ind23", "ind24", "ind25", "ind26", "ind27", "ind28", "ind29", "ind30", "ind31", "ind32", "ind33", "ind34", "ind35", "ind36", "ind37", "ind38", "ind39")
+# Need to also get only the counts for maj and min alleles at each AIM for admixed pops:
+# Bind together with original aims file that contains maj/min allele info:
+admix_aims_50kb_ANA_maj_min = cbind(aims_50kb, admix_aims_50kb_ANA)
+
+# Mutate new major and minor columns for each ind in admixed pop:
+inds=c("ind0", "ind1", "ind2", "ind3", "ind4", "ind5", "ind6", "ind7", "ind8", "ind9", "ind10", "ind11", "ind12", "ind13", "ind14", "ind15", "ind16", "ind17", "ind18", "ind19", "ind20", "ind21", "ind22", "ind23", "ind24", "ind25", "ind26", "ind27", "ind28", "ind29", "ind30", "ind31", "ind32", "ind33", "ind34", "ind35", "ind36", "ind37", "ind38", "ind39") # Change number depending on pop
+
+ANA_aims_maj_min_50kb_all <- admix_aims_50kb_ANA_maj_min
 
 for(ind in inds) {
-  admix_aims_maj_min <- admix_aims_maj_min %>%
+  ANA_aims_maj_min_50kb_all <- ANA_aims_maj_min_50kb_all %>%
+rowwise() %>%
     mutate(
       !!paste0(ind, "_maj") := get(paste0(ind, "_", major.x)),
       !!paste0(ind, "_min") := get(paste0(ind, "_", minor.x))
-    )
+    ) %>% as.data.frame()
 }
-# Convert to df
-admix_aims_maj_min = as.data.frame(admix_aims_maj_min)
+
+# Convert to df:
+ANA_aims_maj_min_50kb_all <- as.data.frame(ANA_aims_maj_min_50kb_all)
 
 # Separate out inds major/minor only:
-inds= admix_aims_maj_min[,-c(1:16)]
+inds_ANA_50kb= ANA_aims_maj_min_50kb_all[,c(1,3,97:136)] # For df with 136 columns and 20 inds, keep 97-136
+colnames(inds_ANA_50kb)[1:2] = c("chrom", "pos")
 
 # Combine with group1_2_aims_maj_min_dist:
-ancestry_hmm_input = cbind(group1_2_aims_maj_min_dist, inds)
+ahmm_input_ANA_50kb = merge(group1_2_aims_maj_min_dist_50kb_ANA, inds_ANA_50kb, by=c("chrom", "pos"))
 
 # Get rid of bp dist column:
-ancestry_hmm_input= ancestry_hmm_input[,-7]
+ahmm_input_ANA_50kb= ahmm_input_ANA_50kb[,-7]
 
 # Write file!
-write.table(ancestry_hmm_input, "ancestry_hmm_input_test.txt", row.names = FALSE, sep = "\t", quote=FALSE)
-write.table(ancestry_hmm_input, "ancestry_hmm_input_test_noheader.txt", row.names = FALSE, sep = "\t", quote=FALSE, col.names=F) # might need without header
+write.table(ahmm_input_ANA_50kb, "ahmm_input_ANA_50kb.txt", row.names = FALSE, sep = "\t", quote=FALSE, col.names=F) # need without header
 ```
 
 
