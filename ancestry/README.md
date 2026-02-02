@@ -47,15 +47,9 @@ done;
 done
 ```
 
-d) Next, because in step A allele counts were generated for all paralog-pruned sites (not just AIMs), need to subset the output counts files for each chromosome based on AIMs list (note that this is clunky, but oh well):
+d) Next, because in step A allele counts were generated for reference groups for all paralog-pruned sites (not just AIMs), need to subset the output counts files for each chromosome based on AIMs list (note that this is clunky, but oh well):
 ```
-# First, generate separate AIMs files for each chromosome:
-for chrom in sal01 #etc
-do
-grep $chrom sites/aims_sites/aims.sites > sites/aims_sites/chrom_aims/aims.$chrom.txt
-done
-
-# Next, generate files with only chrom and position for each chrom:
+# Generate files with only chrom and position for each chrom:
 for chrom in sal01 #etc.
 do
 for GROUP in group1 group2
@@ -75,6 +69,7 @@ do
 awk -F'\t' 'NR==FNR{m[$0]=FNR; next} $0 in m{print m[$0]}' $chrom.$GROUP.pos_mod.txt ../sites/aims_sites/chrom_aims/aims.$chrom.txt > $chrom.$GROUP.aims.lines.txt
 done
 done
+
 # And lastly actually subset the counts files for only the AIMs:
 for chrom in sal01 #etc
 do
