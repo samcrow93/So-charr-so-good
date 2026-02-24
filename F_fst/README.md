@@ -140,18 +140,12 @@ write.table(df_sum_103_FR, "sums.103.FR.sfs", quote=F, sep="\t", row.names=F, co
 ```
 
 # For each group comparison calculate Fst:
-for chrom in #sal01 etc.
-do
-realSFS fst index $chrom.group2.saf.idx $chrom.group1.saf.idx -sfs noheader.winsfs.$chrom.group1.group2.sfs -fstout fst/$chrom.group2.group1.fst
-done
+realSFS fst index $group2.saf.idx $group1.saf.idx -sfs noheader.winsfs.group1.group2.sfs -fstout fst/group2.group1.fst
 ```
 
 6) Lastly, calculate windowed Fst (for window and step size of 10k bp):
 ```
-for chrom in #sal01 etc.
-do
-realSFS fst stats2 $chrom.group2.group1.fst.idx -win 10000 -step 10000 > fst_window/$chrom.group2.group1.fst.txt
-done
+realSFS fst stats2 group2.group1.fst.idx -win 10000 -step 10000 > fst_window/group2.group1.fst.txt
 ```
 
 
