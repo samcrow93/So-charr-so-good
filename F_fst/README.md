@@ -112,7 +112,14 @@ done
 done
 ```
 
-4) Next, need to calculate Fst with realSFS and the saf and sfs files:
+4) Now need to merge chromosome saf files and sum SFS files:
+```
+# Merge saf files using realSFS:
+realSFS cat sal01.$POP.saf.idx sal02.$POP.saf.idx -outnames $POP.merged  # list all chrom files to be concatenated at once
+```
+
+
+5) Next, need to calculate Fst with realSFS and the saf and sfs files:
 ```
 # winsfs creates output files with a header that realSFS fst index function doesn't like, so remove header from SFS files first:
 for file in winsfs*.sfs
@@ -127,7 +134,7 @@ realSFS fst index $chrom.group2.saf.idx $chrom.group1.saf.idx -sfs noheader.wins
 done
 ```
 
-5) Lastly, calculate windowed Fst (for window and step size of 10k bp):
+6) Lastly, calculate windowed Fst (for window and step size of 10k bp):
 ```
 for chrom in #sal01 etc.
 do
