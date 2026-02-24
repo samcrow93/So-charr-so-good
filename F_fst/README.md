@@ -129,7 +129,6 @@ files_103_FR <- list.files(pattern = "*.103\\.FR\\.sfs$")
 # read all files
 files_103_FR <- lapply(files_103_FR, read.table)
 # sum column-wise
-df_sum_103_FR$V1 <- as.numeric(df_sum_103_FR$V1)
 df_sum_103_FR <- Reduce(`+`, files_103_FR)
 # write output
 write.table(df_sum_103_FR, "sums.103.FR.sfs", quote=F, sep="\t", row.names=F, col.names=F)
