@@ -116,16 +116,29 @@ done
 ```
 # Merge saf files using realSFS:
 realSFS cat sal01.$POP.saf.idx sal02.$POP.saf.idx -outnames $POP.merged  # list all chrom files to be concatenated at once
-```
 
-
-5) Next, need to calculate Fst with realSFS and the saf and sfs files:
-```
 # winsfs creates output files with a header that realSFS fst index function doesn't like, so remove header from SFS files first:
 for file in winsfs*.sfs
 do
 tail -n +2 $file > sfs_noheader/noheader.$file
 done
+
+# In R, sum across SFS files for each population/group:
+# For pops 103 and FR, for example:
+files_103_FR <- list.files(pattern = "*.103\\.FR\\.sfs$")
+# read all files
+files_103_FR <- lapply(files_103_FR, read.table)
+# sum column-wise
+df_sum_103_FR$V1 <- as.numeric(df_sum_103_FR$V1)
+df_sum_103_FR <- Reduce(`+`, files_103_FR)
+# write output
+write.table(df_sum_103_FR, "sums.103.FR.sfs", quote=F, sep="\t", row.names=F, col.names=F)
+```
+
+
+
+5) Next, need to calculate Fst with realSFS and the saf and sfs files:
+```
 
 # For each group comparison calculate Fst:
 for chrom in #sal01 etc.
