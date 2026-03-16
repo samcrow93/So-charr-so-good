@@ -139,8 +139,11 @@ write.table(df_sum_103_FR, "sums.103.FR.sfs", quote=F, sep="\t", row.names=F, co
 5) Next, need to calculate Fst with realSFS and the saf and sfs files:
 ```
 
-# For each group comparison calculate Fst:
+# For each group comparison calculate per-site Fst:
 realSFS fst index $group2.saf.idx $group1.saf.idx -sfs noheader.winsfs.group1.group2.sfs -fstout fst/group2.group1.fst
+
+# Also calculate global weighted Fst:
+realSFS fst stats group2.group1.fst.idx
 ```
 
 6) Lastly, calculate windowed Fst (for window and step size of 10k bp):
