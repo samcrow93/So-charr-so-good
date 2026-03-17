@@ -13,6 +13,17 @@ done;
 done
 ```
 
+After this, need to concatenate all the chrom maf files for each group:
+```
+# Add header to new concat file (do the same for group2):
+zcat sal01.group1.AIMref.mafs.gz | head -n 1 > concat.group1.mafs.txt
+# Then loop through files, remove header and append to concat file:
+for chrom in sal01 sal02 #etc
+do
+zcat $chrom.group1.AIMref.mafs.gz | tail -n +2 >> concat.group1.mafs.txt;
+done
+```
+
 b) Next, use the maf files to figure out which have large differences in frequency between the two groups, using the refpop_wrangle.R file (based off of code/script from *******CITE******). This code will also filter to have just a single SNP within a given window size, as a way of reducing LD. 
 
 c) Ultimatley only want the chrom and position for each AIM, so modify the output file from the previous step as follows:
