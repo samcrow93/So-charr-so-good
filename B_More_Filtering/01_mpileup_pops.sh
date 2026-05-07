@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=48:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=1G
-#SBATCH --output=slurm.%x.%j.out
-#SBATCH --job-name=mpileup_noker_nodup
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
+#SBATCH --output=
+#SBATCH --job-name=
 
 module load StdEnv/2020 gcc/9.3.0
 module load samtools
