@@ -1,59 +1,41 @@
+# This script is to determine which SNPs are likely to have reads mapped to more than one location
+# This uses the .lr files output by ngsparalog
+# Running on the no Ker, no dup, no lowdepth, no neg dataset (n=1827 samples)
 
-# Load in all .lr files generated from ngsParalog on populations
-# Note that 4 populations have not finished running yet and are not included in this script
-# Those pops are NNor, PG001_2013, FR, KER
+# Start by loading in .lr files for each population:
+pops =c("103", "AVA", "EG", "GEO", "IKI", "NAC", "PBP", "PG004_2011", "PG010_2013", "PG080_2002", "ROB", "TAH",
+"104", "BI", "EKA", "HAL", "KIN", "NNor", "PG001_2001", "PG004_2022", "PG014_2006", "PG080_2011", "SAT", "TAS",
+"109", "BLD", "ENG", "HRN", "KL19", "NOR", "PG001_2013", "PG008_2002", "PG014_2010", "QNB", "SGR", "TUG",
+"AKL", "COP", "FR", "ICE", "MBB17", "PAM", "PG001_2022", "PG008_2014", "PG015_2003", "QSG", "SPI","ANA",
+"CRB", "FRM", "IKA", "MBB23", "PAN", "PG004_2002", "PG010_2002", "PG015_2011", "R78", "SVG")
 
-lr103 <- read.table('pop103.lr')
-lr104 <- read.table('pop104.lr')
-lrAKL <- read.table('popAKL.lr')
-lrANA <- read.table('popANA.lr')
-lrBI <- read.table('popBI.lr')
-lrCOP <- read.table('popCOP.lr')
-lrCRB <- read.table('popCRB.lr')
-lrEG <- read.table('popEG.lr')
-lrEKA <- read.table('popEKA.lr')
-lrENG <- read.table('popENG.lr')
-lrFRM <- read.table('popFRM.lr')
-lrGEO <- read.table('popGEO.lr')
-lrHAL <- read.table('popHAL.lr')
-lrHRN <- read.table('popHRN.lr')
-lrICE <- read.table('popICE.lr')
-lrIKA <- read.table('popIKA.lr')
-lrIKI <- read.table('popIKI.lr')
-lrJM <- read.table('popJM.lr')
-lrKAN <- read.table('popKAN.lr')
-lrKGJ <- read.table('popKGJ.lr')
-lrKIN <- read.table('popKIN.lr')
-lrKL19 <- read.table('popKL19.lr')
-lrMBB23 <- read.table('popMBB23.lr')
-lrPAM <- read.table('popPAM.lr')
-lrPG001_2001 <- read.table('popPG001_2001.lr')
-lrPG001_2024 <- read.table('popPG001_2024.lr')
-lrPG004_2002 <- read.table('popPG004_2002.lr')
-lrPG004_2011 <- read.table('popPG004_2011.lr')
-lrPG004_2024 <- read.table('popPG004_2024.lr')
-lrPG008_2002 <- read.table('popPG008_2002.lr')
-lrPG008_2014 <- read.table('popPG008_2014.lr')
-lrPG010_2002 <- read.table('popPG010_2002.lr')
-lrPG010_2013 <- read.table('popPG010_2013.lr')
-lrPG014_2006 <- read.table('popPG014_2006.lr')
-lrPG014_2010 <- read.table('popPG014_2010.lr')
-lrPG015_2003 <- read.table('popPG015_2003.lr')
-lrPG015_2011 <- read.table('popPG015_2011.lr')
-lrPG080_2002 <- read.table('popPG080_2002.lr')
-lrPG080_2011 <- read.table('popPG080_2011.lr')
-lrQNB <- read.table('popQNB.lr')
-lrQSG <- read.table('popQSG.lr')
-lrROB <- read.table('popROB.lr')
-lrSGR <- read.table('popSGR.lr')
-lrSPI <- read.table('popSPI.lr')
-lrTAH <- read.table('popTAH.lr')
-lrTUG <- read.table('popTUG.lr')
-lr_all = rbind(lr103, lr104, lrAKL, lrANA, lrBI,lrCOP,lrCRB,lrEG, lrEKA, lrENG, lrFRM, lrGEO, lrHAL, lrHRN, lrICE, lrIKA, lrIKI, lrJM, lrKAN, lrKGJ, lrKIN, lrKL19, lrMBB23, lrPAM, lrPG001_2001, lrPG001_2024, lrPG004_2002, lrPG004_2011, lrPG004_2024, lrPG008_2002, lrPG008_2014, lrPG010_2002, lrPG010_2013, lrPG014_2006, lrPG014_2010, lrPG015_2003, lrPG015_2011, lrPG080_2002, lrPG080_2011, lrQNB, lrQSG, lrROB, lrSGR, lrSPI, lrTAH, lrTUG)
-lr_all$pval <- 0.5*pchisq(lr_all$V5,df=1,lower.tail=FALSE)
-lr_all$pval.adj <- p.adjust(lr_all$pval, method="bonferroni")
+# Create empty df to hold all lr file data:
+lr_all <- data.frame(chrom = character(),
+  pos = numeric(),
+  neglognulllike = numeric(),
+  neglogaltlike = numeric(),
+  lr_mismap = numeric(),
+  pval = numeric(),
+  pval.adj = numeric())
+
+
+for (p in pops) {
+  lr_file <- file.path(paste0(p, ".lr"))
+  lr_pop <- read.table(lr_file, header=FALSE)
+  # Calculate pvalue for LR mismap for each pop separately:
+  lr_pop$pval <- 0.5*pchisq(lr_pop$V5,df=1,lower.tail=FALSE)
+  lr_pop$pval.adj <- p.adjust(lr_pop$pval, method="bonferroni")
+  # Add to lr_all df:
+  lr_all <- rbind(lr_all, lr_pop)
+}
+
+colnames(lr_all) <- c("chrom", "pos", "neglognulllike", "neglogaltlike", "lr_mismap", "pval", "pval.adj")
+
 # Make df with deviant sites to be removed:
 dev.sites <- lr_all[which(lr_all$pval.adj < 0.05),c(1,2,7)]
-dev.sites$locus <- paste0(dev.sites$V1, "_", dev.sites$V2)
-dev.sites= dev.sites[,3:4]
-write.table(dev.sites,"dev_sites_all.txt", sep="\t", row.names=F, col.names=F, quote=F)
+dev.sites$locus <- paste0(dev.sites$chrom, "_", dev.sites$pos)
+# Only keep list of unique deviant sites (lots of overlap among pops):
+library(dplyr)
+dev.sites_unique <- dev.sites %>% distinct(locus)
+write.table(dev.sites_unique,"dev_sites_noker_nodup_uniq.txt", sep="\t", row.names=F, col.names=F, quote=F)
+
