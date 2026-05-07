@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=24:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=5G
-#SBATCH --output=slurm.%x.%j.out
-#SBATCH --job-name=pcangsd_chroms_window
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
+#SBATCH --output=
+#SBATCH --job-name=
 
 module load StdEnv/2020 python/3.10.2
 module load scipy-stack/2023b
