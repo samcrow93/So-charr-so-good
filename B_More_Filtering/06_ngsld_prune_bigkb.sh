@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=1:00:00
+#SBATCH --time=
 #SBATCH --account=
 #SBATCH --mail-type=
 #SBATCH --mail-user=
-#SBATCH --mem=1G
-#SBATCH --out=slurm.%x.%j.out
-#SBATCH --job-name=charr_LD_prune_bigkb
+#SBATCH --mem=
+#SBATCH --out=
+#SBATCH --job-name=
 
 # Generate pruned SNP list using the prune_graph.pl script within ngsLD
 # Do this for each chromosome
