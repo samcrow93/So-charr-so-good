@@ -99,70 +99,10 @@ sbatch --export=ALL,set=charr_NL.set$i,paramfile=charr_WGS_params_main.txt 07_in
 done
 ```
 
-### 7.0 Genotype likelihoods using ANGSD
-7.1) Create ANGSD parameters file called angsd_params.txt with the following parameters:
-```
-bamfile=/home/samcrow/scratch/charr_wgs/all_charr/scripts/bamlist.tsv
-runname=charr
-minInd=1540
-minDepth=3850
-```
+### 7.0) Remove low-depth individuals:
+7.1) Calculate average depth and coverage for each individual for each chromosome using samtools coverage (use 08_depth_from_bams.sh script). This will generate a .txt file for each sample.
 
-7.2 Create bamlist.tsv file (list of all bamfiles (n=1920)- note that this includes 4 duplicate samples as well as negatives):
-```
-ls /path_to_bams/*.realigned.bam > bamlist.tsv
-```
-
-Also need to create list of chromosomes (get from genome):
-```
-cut -f1 /path_to_genome/genome.fna.fai | grep "sal" > chromsnuc
-```
-
-7.3) Run ANGSD: Submit 08_angsd_chromos.sh script as follows:
-```
-while read chromsnuc
-do
-sbatch --export=ALL,chromsnuc=$chromsnuc,paramfile=charr_WGS_params_main.txt,angsdparam=angsd_params.txt 08_angsd_chromos.sh
-done < chromsnuc
-```
-
-## HOWEVER: MISTAKES WERE MADE
-It turns out that there was originally a typo in my angsd_params.txt file:
-The 'minInd' variable was actually spelled as 'midInd'
-Apparently, ANGSD will not fail out if it cannot find that variable, but instead will just carry on and not do any filtering based on coverage at each site across individuals....
-
-SO
-
-### 8.0 Re-Run ANGSD
-This next ANGSD run includes the same parameters as the first, but now also includes the minInd filter
-Additionally, I limit the sites to only those output in the first run (to cut down on run time requirements, which were huge during the first run, up to 7+ days depending on chromosome!)
-
-8.1) Generate sites files for each chromosome (using .pos.gz files output from first run), index these, and also generate chromosome files to specify region:
-```
-# Make sites directory
-mkdir sites
-# create sites files for each chromosome (sal01 given as example below)
-zcat charr.sal01.pos.gz | cut -f1,2 | tail -n +2 > sites/sites01.list
-
-# Index sites file
-module load StdEnv/2023 angsd/0.940
-angsd sites index sites01.list
-
-# Generate chromosome files
-echo "sal01" > sites/chroms01.txt
-```
-
-8.2) Using tailored job scripts for each chromosome (based on memory used and time requirements from first run), submit separate ANGSD jobs for each chromosome:
-```
-sbatch 8.5_angsd_sal01_redo_filter.sh
-```
-
-** In the end, I decided to split up a number of chromosomes and run ANGSD separately on the different sections, due to resource issues (many smaller jobs queued and ran faster than one huge job per chromosome. Also didn't limit these jobs to sites genotyped previously, because it didn't seem to help runtime at all) **
-
-### 9.0) Remove low-depth individuals:
-9.1) Calculate average depth and coverage for each individual for each chromosome using samtools coverage (use 09_depth_from_bams.sh script). This will generate a .txt file for each sample.
-
-9.2) Concatenate all sample .txt files with per-chromosome mean depth, coverage, and quality info:
+7.2) Concatenate all sample .txt files with per-chromosome mean depth, coverage, and quality info:
 ```
 cd depth_files
 output_file="concat_depth.txt"
@@ -177,27 +117,23 @@ done
 ```
 This will return a file of all the coverage/depth info per sample concatenated, with the file name in a new column.
 
-9.3) Next, need to search for samples with very low depth (use coverage= 0.5x for nuclear chromosomes).
+7.3) Next, need to search for samples with very low depth (use coverage= 0.5x for nuclear chromosomes).
 ```
 awk '$7 < 0.5 && /NC_049/' concat_depth.txt | awk '{print $10}' | sort -u >> low_samples.txt
 ```
+These samples were removed prior to downstream analysis (i.e. calculation of genotype likelihoods). Also removed were negatives, Kerguelen samples, and 8 duplicated sample names (leaving a total of 1827 samples remaining for genotype likelihood calculation).
 
-9.4) Remove low-depth individuals (low_samples.txt) from beagle files):
-To remove individuals from a beagle file is very clunky. First, need to match sample names in bamlist.tsv to "Ind#" names used in beagle file:
+### 8.0 Genotype likelihoods using ANGSD
+Run ANGSD: Submit 09_angsd_chroms.sh script as follows:
 ```
-# Print the row number corresponding to each sample (order in which beagle files were generated):
-awk '{print $0,NR}' bamlist.tsv > bamlist_rownumbers.txt
+for chrom in sal01 sal02 # etc.
+do
+sbatch --export=chrom=$chrom 09_angsd_chroms.sh
+done
 ```
-Have to go through the file manually to figure out the numbers for the samples listed in the lownuc_samples.txt file above. Explanation for how this is done is given in actual jobscript (10_remove_lowdepth_inds_filt.sh). Running this script will prune beagle files of the low-depth individuals needing to be excluded from downstream analysis: 1920 original files - 38 low-depth files (including negatives) = 1882 remaining files. 
 
-Also generate an updated list of files (low-depth ones removed) to be used in downstream analyses:
-```
-grep -v -F -f low_samples.txt bamlist.tsv > lowfilts.txt
-```
-The file lowfilts.txt will contain samples that have average depths across every chromosome greater than 0.5X. There are 1882 samples in the file, but note that this corresponds to 1878 unique fish (4 fish were sequenced twice- but keep these duplicates in for downstream analyses for now). 
+9) Concatenate chromosome beagle files together (for use in whole-genome PCA visualization) by running 10_concat_beagles.sh.
 
-9.5) Concatenate chromosome beagle files (with low-depth inds filtered out) together (for use in whole-genome PCA visualization) by running 11_concat_lowfilt_beagles.sh.
-
-### The low-filtered beagle files are now ready for use in PCANGSD, and also ready for additional processing for downstream analyses (i.e. paralog filtering, LD-filtering, admixture- see other sections of this repository).
+### The beagle files are now ready for use in PCANGSD, and also ready for additional processing for downstream analyses (i.e. paralog filtering, LD-filtering, admixture- see other sections of this repository).
 
 
