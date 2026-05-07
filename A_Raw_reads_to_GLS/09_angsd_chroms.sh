@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=96:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=220G
-#SBATCH --out=slurm.%x.%j.out
-#SBATCH --job-name=angsd_noker_lowfilt_nodup
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
+#SBATCH --out=
+#SBATCH --job-name=
 
 # This script is to run ANGSD and generate genotype likelihoods for 1827 samples
 # This excludes Kerguelen samples (n=47), the < 0.5X depth samples (n=24), and duplicated samples (n=8)
