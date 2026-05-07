@@ -26,22 +26,21 @@ D) Identify which SNPs should be removed based on a p-value threshold:
 
 E) Identify 'GOOD' (i.e. likely non-paralogous) loci, and split up by chromosome, by running this code:
 ```
-# Modify allsites.txt file so that there is a "_" in between chromosome and position:
-cat allsites.txt | sed 's/\t/\_/' > allsites_mod.txt
+# Modify concat_noker_sites.txt file so that there is a "_" in between chromosome and position:
+cat concat_noker_sites.txt | sed 's/\t/\_/' > concat_noker_underscore_sites.txt
 # Then, reverse grep for deviant sites in list of all sites to generate list of good sites:
-grep -Fvx -f /home/samcrow/scratch/charr_wgs/mpileup/ngsparalog_out/dev_sites_final.txt allsites_mod.txt > goodsites.txt
+grep -Fvx -f dev_sites_noker_nodup_uniq.txt ../../concat_noker_underscore_sites.txt > goodsites_noker.txt
 # Finally, split up good sites file by chromosome:
-grep "sal01" goodsites.txt > goodsites/sal01.goodsites.txt   # etc for other chromosomes
+grep "sal01" goodsites_noker.txt > goodsites/sal01.goodsites.txt   # etc for other chromosomes
 ```
 
-Finally, use the 04_remove_dev_snps.sh script to filter out deviant SNPs and only keep "good" ones (submit as follows on a per-chromosome basis):
+Finally, use the 04_remove_dev_snps_noker.sh script to filter out deviant SNPs and only keep "good" ones (submit as follows on a per-chromosome basis):
 ```
 for chrom in sal01 sal02  # etc
 do
-sbatch --export=ALL,chrom=$chrom remove_dev_snps.sh
+sbatch --export=ALL,chrom=$chrom remove_dev_snps_noker.sh
 done
 ```
-** Note: these paralog-filtered beagle files will not have a header!! **
 
 ### Now we have beagle files that have been filtered of likely paralogous loci and are ready to be LD-filtered. 
 Initially, I filtered not super stringently, and used the paralog-pruned files without further pruning - this took a very long time!
