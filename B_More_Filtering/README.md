@@ -43,18 +43,20 @@ done
 ```
 
 ### Now we have beagle files that have been filtered of likely paralogous loci and are ready to be LD-filtered. 
-Initially, I filtered not super stringently, and used the paralog-pruned files without further pruning - this took a very long time!
-Instead, going forward I decided to a) subsample the paralog-pruned files to every 10th SNP, then run more stringent LD-pruning.
 
 ### 2) NGSLD
-a) Subsample low-filtered, paralog-filtered beagle files by selecting every 10th line. Also remove first three columns (recommendation from https://github.com/therkildsen-lab/genomic-data-analysis/blob/master/markdowns/ld.md#ld-estimation):
+a) Subsample paralog-filtered beagle files by selecting every 10th line. Also remove first three columns (recommendation from https://github.com/therkildsen-lab/genomic-data-analysis/blob/master/markdowns/ld.md#ld-estimation):
 ```
-zcat sal01.para_filt.beagle.gz | awk 'NR % 10 == 0' | cut -f 4- | gzip  > sal01_subsamp_para.beagle.gz
+# Get header for new subsample file:
+zcat sal01.parafilt.beagle.gz | head -n 1 | gzip > subsamp_para/sal01.subsamp.para.beagle.gz
+# sample every 10th line, remove first 3 columns:
+# Note that this removes the header first so that the first SNP sampled is indeed the 10th SNP in the file:
+zcat sal01.parafilt.beagle.gz | tail -n +2 | awk 'NR % 10 == 0' | cut -f 4- | gzip  > subsamp_para/sal01.subsamp.para.beagle.gz
 ```
 
-b) Create position file that matches subsampled beagle file (which no longer has position info): The line below will separate the position from chromosome by replacing _ with tab, then selects only the first 2 cols, then every 10 lines:
+b) Create position file that matches subsampled beagle file (which no longer has position info): The line below will separate the position from chromosome by replacing _ with tab, then selects only the first 2 cols, then every 10 lines (note that this position file will not have a header):
 ```
-zcat sal01.para_filt.beagle.gz | sed 's/_/\t/g' | cut -f 1,2 | awk 'NR % 10 == 0' | gzip > subsampled_parafilt/sal01_subsamp_para.pos.gz
+zcat sal01.parafilt.beagle.gz | tail -n +2 | sed 's/_/\t/g' | cut -f 1,2 | awk 'NR % 10 == 0' | gzip > subsamp_para/sal01.subsamp.para.pos.gz
 ```
 
 c) Run 05_ngsld_bigkb.sh script for each chromosome:
