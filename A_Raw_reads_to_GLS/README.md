@@ -1,6 +1,5 @@
 ## This section outlines steps taken from processing raw fastq files through to generation of genotype likelihoods
 ### Note that this readme file describes workflow for main batch of samples (designated as "NL" in script naming etc.), however there is another batches of samples (published data (Dallaire et al. 2023 Genome Biology and Evolution) downloaded from the NCBI sequence read archive, n=517 samples available as of late 2024 for BioProject accession PRJNA1031558) that were processed using similar scripts.
-### Also note that due to the very large size of this dataset, a number of steps had to be repeated due to jobs failing out from lack of time and/or memory for certain samples (especially the alignment step).
 
 ### 1.0) Create parameters file (charr_WGS_params_main.txt)
 The following text is within the parameters file (specify where software and genome is located):
