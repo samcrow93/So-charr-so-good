@@ -17,7 +17,7 @@ library(tidyr)
 # Load in files:
 files<-data.frame(list.files("./", pattern = ".cov", full.names = F))
 colnames(files)<- "file_name"
-files$chrom<-1
+files$chrom<- chrom
 files$win <- sub("^.*\\.win\\.([0-9]+)\\.cov$", "\\1", files$file_name)
 files$win=as.numeric(files$win)
 win_order<-files[order(files$chrom, files$win),]
