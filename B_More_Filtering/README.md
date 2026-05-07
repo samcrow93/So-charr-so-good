@@ -9,32 +9,20 @@ First, need to make a samtools mpileup file for each population as input for ngs
 
 A) Create sites file as input for mpileup script:
 ```
-# Get positions from each beagle chromosome files to generate chromosome sites files (WITHOUT header):
-zcat sal01_filt.beagle.gz | sed 's/_/\t/g' | cut -f 1,2 | tail -n+2 > sal01.sites
-
-# Concatenate all sites files together:
-for file in sal*.sites
+for file in *mafs.gz;
 do
-cat $file >> allsites.txt
+zcat $file | tail -n +2 | cut -f1,2 >> concat_noker_sites.txt;
 done
 ```
 
-B) Run mpileup_pop.sh scripts (e.g. 01_mpileup_pop103.sh)
-- Bamlists of samples corresponding to each population were generated using sample names which contain pop codes
+B) Run mpileup using 01_mpileup_pops.sh script.
 
-C) Run ngsparalog (using pop_ngsparalog.sh scripts (e.g. 02_pop103_ngsparalog.sh)) on a per-population basis:
-- For all loci for which genotype likelihoods were calculated in the original ANGSD run (i.e. allsites.txt)
-- ngsParalog will output likelihoods that reads covering each SNP are mismapped/mapped to multiple locations instead of just one location.
+C) Run ngsparalog on a per-population basis using the 02_ngsparalog_pops.sh script:
+- For all loci for which genotype likelihoods were calculated in the original ANGSD run, ngsParalog will output likelihoods that reads covering each SNP are mismapped/mapped to multiple locations instead of just one location.
 
 D) Identify which SNPs should be removed based on a p-value threshold:
 - Use the 03a_paralog_filt.R and 03b_paralog_filt_job.sh scripts
-- Note that this will output a list of deviant ('BAD' i.e. likely having mismapped reads) SNPs, across ALL populations (this means that many loci will be duplicated if they are deviant in multiple populations- output in the dev_sites_all.txt file)
-
-D) Identify unique list of SNPs that are deviant in at least one population:
-```
-# This will cut the 2nd column from the dev_sites_all.txt file (the chrom_snp column), and only keep unique sites
-cut -f2 dev_sites_all.txt | sort | uniq > dev_sites_final.txt
-```
+- Note that this will output a list of unique deviant SNPs ('BAD' i.e. likely having mismapped reads)
 
 E) Identify 'GOOD' (i.e. likely non-paralogous) loci, and split up by chromosome, by running this code:
 ```
