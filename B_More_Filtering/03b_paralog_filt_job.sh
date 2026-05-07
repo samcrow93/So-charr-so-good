@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=6:00:00
+#SBATCH --time=
 #SBATCH --account=
 #SBATCH --mail-type=
 #SBATCH --mail-user=
-#SBATCH --mem=50G
-#SBATCH --job-name=paralog_filt
+#SBATCH --mem=
+#SBATCH --job-name=
 
 cd /home/samcrow/scratch/charr_wgs/mpileup/ngsparalog_out
 
