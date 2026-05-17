@@ -67,16 +67,27 @@ sbatch --export=ALL,chrom=$chrom ngsld_bigkb.sh
 done
 ```
 
-d) Run 06_ngsld_prune_bigkb.sh script (submit same as for script in step above). This will output a file with a list of chromosomes and positions of sites that are in linkage equilibrium. Modify this file so that chromosomes and positions are separated by a tab instead of a :
+d) Run 06_ngsld_prune_bigkb.sh script (submit same as for script in step above). This will output a file with a list of chromosomes and positions of sites that are in linkage equilibrium. Modify this file so that positions are sorted, and that chrom and pos are separated by a _ instead of a :
 ```
-sed -e 's/\:\+/_/g' sal01.subsamp_bigkb_unlinked.pos > sal01_unlinked.txt
+for chrom in sal01 sal02 # etc
+do
+sed 's/\:/\t/g' $chrom.subsamp.bigkb.unlinked.pos | sort -n -k2 | sed 's/\t/\_/g' > $chrom.noker.unlinked.txt
+done
 ```
 
 e) Instead of running ANGSD again for only the unlinked sites, prune paralog-filtered beagle files for only unlinked sites identified in steps above:
 ```
-zcat ../../sal01.para_filt.beagle.gz | grep -f sal01_unlinked.txt -Fw | gzip > ldfilt_subsamp_bigkb/sal01_bigkb_para_subsamp.beagle.gz
+# First make header for new files:
+for chrom in sal01 # etc
+do
+zcat ../../$chrom.parafilt.beagle.gz | head -n 1 | gzip > ld_filt/$chrom.para.ldfilt.beagle.gz
+done
+# Next filter for unlinked loci:
+for chrom in sal01 # etc
+do
+zcat ../../$chrom.parafilt.beagle.gz | grep -f $chrom.noker.unlinked.txt -Fw | gzip >> ld_filt/$chrom.para.ldfilt.beagle.gz
+done
 ```
-** NOTE: these beagle files also do NOT have a header!! **
 
 f) Concatenate chromosone files and add header back to prep for ngsadmix:
 ```
