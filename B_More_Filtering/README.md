@@ -91,10 +91,13 @@ done
 
 f) Concatenate chromosone files and add header back to prep for ngsadmix:
 ```
-# Add header from lowfilt file
-zcat lowfilt.sal01.beagle.gz | head -n 1 | gzip > /parafilts/subsampled_parafilt/ngsld_out_bigkbdist/ldfilt_subsamp_bigkb/concat_charr_bigkb_para_subsamp.beagle.gz
+# Add header:
+zcat sal01.para.ldfilt.beagle.gz | head -n 1 | gzip > concat.para.ldfilt.noker.beagle.gz
 # Add each chromosome file sequentially
-zcat sal01_bigkb_para_subsamp.beagle.gz | gzip >> concat_charr_bigkb_para_subsamp.beagle.gz # repeat for other chromosome files
+for chrom in sal01 #etc.
+do
+zcat $chrom.para.ldfilt.beagle.gz | tail -n +2 | gzip >> concat.para.ldfilt.noker.beagle.gz
+done
 ```
 
 ## There are now paralog-filtered, LD-filtered chromosome beagle files, as well as a concatenated filtered file for use in ngsadmix and other downstream analyses.
