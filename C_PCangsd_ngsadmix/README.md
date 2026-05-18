@@ -49,11 +49,11 @@ Note that in 24 hrs, only Kvalues 2-8 and 16 finished and converged.
 
 B) Evaluate which value of K is best, using approach described in https://baylab.github.io/MarineGenomics/week-9-population-structure-using-ngsadmix.html, which also refers to using this site: https://clumpak.tau.ac.il/bestK.html
 
-First, need to rename .out files from ngsadmix so they contain the Kvalue and replicate numbers i.e. ngsadmix_ldpruned_bigkb_para_subsamp_k2.1.out.
+First, need to rename .out files from ngsadmix so they contain the Kvalue and replicate numbers i.e. noker.k2.1.out.
 Next, load into R and process as follows:
 ```
 # List all .out files to checkk all is good:
-# 10 replicates of Kvalues 2-7 (60 files total):
+# 10 replicates of Kvalues 2-8 (70 files total):
 files<-list.files("./", pattern = ".log", full.names = T)
 
 # Load in all files at once:
@@ -68,7 +68,7 @@ numbers <- regmatches(likes_lines, regexpr("(?<=like=)-?\\d+\\.?\\d*", likes_lin
 abs_numbers <- abs(as.numeric(numbers))
 
 # Create df that has K values and log likelihoods:
-logs=data.frame(K = rep(1:7, each=10))
+logs=data.frame(K = rep(2:8, each=10))
 logs$like= abs_numbers
 
 # Calculate delta K:
