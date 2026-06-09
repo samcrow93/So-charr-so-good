@@ -13,7 +13,7 @@
 module load nixpkgs/16.09 gatk/3.7
 
 export projdir=/home/samcrow/scratch/charr_wgs
-export genome=/home/samcrow/scratch/charr_wgs/mitogenomes/refs/swedish_ref_mito.fasta
+export genome=/home/samcrow/scratch/charr_wgs/mitogenomes/refs/acad_ref.fasta
 
 cat $projdir/scripts/mt_align_sets/NL_dedup_index/$set | \
-   parallel --tmpdir $projdir/mitogenomes/gatktemp --jobs 10 'java -Xmx5g -Djava.io.tmpdir=$projdir/mitogenomes/gatktemp -jar $EBROOTGATK/GenomeAnalysisTK.jar -T IndelRealigner -R $genome -I $projdir/mitogenomes/aligned_swedish/{}.mito_swedish_deDup.bam -targetIntervals $projdir/mitogenomes/aligned_swedish/{}.mito_swedish.intervals -o $projdir/mitogenomes/aligned_swedish/{}.mito_swedish_realigned.bam '
+   parallel --tmpdir $projdir/mitogenomes/gatktemp --jobs 10 'java -Xmx5g -Djava.io.tmpdir=$projdir/mitogenomes/gatktemp -jar $EBROOTGATK/GenomeAnalysisTK.jar -T IndelRealigner -R $genome -I $projdir/mitogenomes/aligned_acad/{}.mito_acad_deDup.bam -targetIntervals $projdir/mitogenomes/aligned_acad/{}.mito_acad.intervals -o $projdir/mitogenomes/aligned_acad/{}.mito_acad_realigned.bam '
