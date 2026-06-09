@@ -64,7 +64,7 @@ done
 First, need to identify realignment targets using GATK (deprecated version) using 04_indel_target_mito_NL.sh script:
 ```
 # First need to create .dict file (not already part of mitogenome ref files downloaded from NCBI):
-gatk CreateSequenceDictionary -R swedish_ref_mito.fasta
+gatk CreateSequenceDictionary -R acad_ref.fasta
 
 # Then submit jobs:
 for i in {00..#total_dedup_sets}
@@ -104,18 +104,18 @@ This will return a file of all the coverage/depth info per sample concatenated, 
 4.3) Identify which samples have mean depth < 15X:
 ```
 awk '$7 < 15 && /CM098937.1/' concat_depth.txt | awk '{print $10}' | sort -u > lowmito_charr_samples.txt
-# These samples all end with the suffix .mito_swedish_realigned.bam
+# These samples all end with the suffix .mito_acad_realigned.bam
 ```
 
 4.4) Create new sample list of only those with mean depths >= 15X:
 ```
 # Generate list of sample names for which there are realigned bams:
-ls *.mito_swedish_realigned.bam.txt  | sed 's/\.txt//' > mt_inds.tsv
+ls *.mito_acad_realigned.bam.txt  | sed 's/\.txt//' > mt_inds.tsv
 # Reverse grep to remove low depth samples from full sample list:
 grep -v -F -f lowmito_charr_samples.txt mt_inds.tsv > mt_inds_freebayes.txt
 ```
 
-4.5) Uuse ANGSD -dofasta to call genotypes (run angsd_mito_dofasta.sh).
+4.5) Uuse ANGSD -dofasta to call genotypes (run 07_angsd_mito_acad_dofasta.sh).
 This will generate a consensus fasta sequence for each individual that passed the >=15X cutoff (listed in mt_inds_freebayes.txt).
 
 4.6) Concatenate all fasta files together:
@@ -123,7 +123,7 @@ This will generate a consensus fasta sequence for each individual that passed th
 output="combined.fasta"
 for file in *.fa.gz;
 do
-sample=$(basename "$file" .mito_swedish_realigned.bam.fa.gz);
+sample=$(basename "$file" .mito_acad_realigned.bam.fa.gz);
 zcat "$file" | while IFS= read -r line;
 do
 if [[ "$line" == ">"* ]];
@@ -134,9 +134,9 @@ done;
 done
 ```
 
-4.7) Run a multiple sequence alignment using Clustal Omega (using clustal_charr_mito.sh script). Include both the Acadian reference sequence (NC_000861), as well as a brook trout (S. fontinalis) reference (NC_000860) as well. 
+4.7) Run a multiple sequence alignment using Clustal Omega (using 08_clustal_mito_acad.sh script). Include both the Acadian reference sequence (NC_000861), as well as a brook trout (S. fontinalis) reference (NC_000860) as well. 
 
-4.8) Import the resulting fasta file file into R to determine haplotypes (using mito_full_haplotypes.R script). This will end by writing a new fasta file with the sequences of unique whole-mitogenome haplotypes. 
+4.8) Import the resulting fasta file file into R to determine haplotypes (using 09_mito_full_haplotypes.R script). This will end by writing a new fasta file with the sequences of unique whole-mitogenome haplotypes. 
 
 4.9) Use the fasta file of whole-mitogenome haplotype sequences to generate a maximum likelihood tree using the IQ-TREE2 program:
 ```
@@ -146,7 +146,7 @@ done
 iqtree -s hap_seqs_acadref_withfontacad_noKER_nodup.fasta -o haplotype665 -m TIM3+F+R2 -B 1000 --prefix hap_seqs_acadref_withfontacad_noKER_nodup_UFBOOT
 ```
 
-4.10) Visualize the output consensus tree (.contree) in R using ggtree (use trees_charr.R script).
+4.10) Visualize the output consensus tree (.contree) in R using ggtree (use 10_trees_charr.R script).
 
 
 
