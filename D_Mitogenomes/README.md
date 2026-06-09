@@ -2,7 +2,7 @@
 
 ### Samples were processed in steps 1-3 in the raw_reads_to_GLs section (trimming); analyses described here picks up from that point.
 
-### Note that reference genome used for nuclear data does not include a mitogenome reference; therefore the analyses here use a reference mitogenome from a difference sample (accession # CM098937 in NCBI)
+### Note that reference genome used for nuclear data does not include a mitogenome reference; therefore the analyses here use a reference mitogenome from a difference sample (accession # NC_000861 in NCBI)
 
 ### 1.0) Alignment to mitogenome
 Trimmed fastq files are quite large, so run each sample as a separate job:
@@ -115,7 +115,7 @@ ls *.mito_swedish_realigned.bam.txt  | sed 's/\.txt//' > mt_inds.tsv
 grep -v -F -f lowmito_charr_samples.txt mt_inds.tsv > mt_inds_freebayes.txt
 ```
 
-4.5) As it turns out, freebayes took a very long time (did not finish); therefore, use ANGSD -dofasta instead (run angsd_mito_dofasta.sh).
+4.5) Uuse ANGSD -dofasta to call genotypes (run angsd_mito_dofasta.sh).
 This will generate a consensus fasta sequence for each individual that passed the >=15X cutoff (listed in mt_inds_freebayes.txt).
 
 4.6) Concatenate all fasta files together:
@@ -134,15 +134,19 @@ done;
 done
 ```
 
-4.7) Run a multiple sequence alignment using Clustal Omega (using clustal_charr_mito.sh script).
+4.7) Run a multiple sequence alignment using Clustal Omega (using clustal_charr_mito.sh script). Include both the Acadian reference sequence (NC_000861), as well as a brook trout (S. fontinalis) reference (NC_000860) as well. 
 
-4.8) Excise the D-loop region (bases 1-998):
+4.8) Import the resulting fasta file file into R to determine haplotypes (using mito_full_haplotypes.R script). This will end by writing a new fasta file with the sequences of unique whole-mitogenome haplotypes. 
+
+4.9) Use the fasta file of whole-mitogenome haplotype sequences to generate a maximum likelihood tree using the IQ-TREE2 program:
 ```
-awk '/^>/ {if (seq) print substr(seq,1,998); print; seq=""; next} {seq=seq $0} END {print substr(seq,1,998)}' charr_multiseqalign.fa > test_dloop.fasta
+# Note that 'haplotype665' is the S. fontinalis sequence and is used as the outgroup here
+# The TIM3+F+R2 was determined to be the best substitution model from a previous run using the -m TEST option
+# Also use the UFBOOT option with 1000 replicates to bootstrap
+iqtree -s hap_seqs_acadref_withfontacad_noKER_nodup.fasta -o haplotype665 -m TIM3+F+R2 -B 1000 --prefix hap_seqs_acadref_withfontacad_noKER_nodup_UFBOOT
 ```
 
-4.8) Import the resulting test_dloop.fasta file into R to determine haplotypes (using charr_dloop.R script).
-
+4.10) Visualize the output consensus tree (.contree) in R using ggtree (use trees_charr.R script).
 
 
 
