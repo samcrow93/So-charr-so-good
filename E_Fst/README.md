@@ -72,32 +72,26 @@ bedtools maskfasta -fi /home/samcrow/scratch/charr/genome/Arthur_CHR_polished.fa
 samtools faidx MASKED_charr_noker_ref.fasta
 ```
 
-## Fst for 'lineage' groups based on ngsadmix outputs (K=2 or K=3 groups):
-1) For K=2, used 50 individuals that had ~100% either group1 or group2 admixture. For group3, there aren't any individuals with close to 100% group3 admixture, so choose top 50 individuals that also have <5% group2 admixture (use ngsadmix_process.R script for this selection process). List of individuals (bam files) named (for example) k3_group1_samplesforFst.txt etc.
+## Fst for 'lineage' groups and subgroups based on ngsadmix outputs (K=2, K=3, and K=5 were all fairly well-supported)
+Calculate Fst between K=3 and K=5 groups ("pure" individuals for groups 1 and 2 for K=2 and K=3 are the same). For K=3, used 50 individuals that had ~100% either group1 or group2 admixture (aka presumed "pure" Arctic and Atlantic, respectively). For group3 (Labrador/admixed group), there aren't any individuals with close to 100% group3 admixture, so choose top 50 individuals that also have <5% group2 admixture. For K=5, use 20 individuals with highest per-group proportions. List of individuals (bam files) named (for example) k3_group1_samplesforFst.txt etc.
 
-2) Use ANGSD to calculate sample allele frequency (SAF) for each group using masked reference genome on a per-chromosome basis:
+1) Use ANGSD to calculate sample allele frequency (SAF) for each group using masked reference genome on a per-chromosome basis (use 01_saf_k3_angsd.sh or sal_k5_angsd.sh scripts).
 ```
 for chrom in #sal01 etc
 do
-sbatch --export=chrom=$chrom saf_k2_angsd.sh     # or saf_k3_angsd.sh
+sbatch --export=chrom=$chrom 01_saf_k3_angsd.sh     # or 01_saf_k5_angsd.sh
 done
 ```
 
-3) Next, use winsfs to calculate site frequency spectrum (SFS) for each group on a per-chromosome basis:
+2) Next, use winsfs to calculate site frequency spectrum (SFS) for each group on a per-chromosome basis using 02_winsfs_k3_angsd.sh or 02_winsfs_k5_angsd.sh scripts:
 ```
-# For k=2, submit jobs as follows:
-for chrom in #sal01 etc
-do
-sbatch --export=chrom=$chrom winsfs_k2_angsd.sh
-done
-
-# For k=3, submit jobs as follows (slightly more complicated given the number of combinations):
-for chrom in #sal01 etc
+# For k=3, submit jobs as follows:
+for chrom in sal01 #etc
 do
 for GROUP in group2 group3
 do
 TARGET=group1
-sbatch --export=chrom=$chrom,GROUP=$GROUP,TARGET=$TARGET winsfs_k3_angsd.sh
+sbatch --export=chrom=$chrom,GROUP=$GROUP,TARGET=$TARGET 02_winsfs_k3_angsd.sh
 done
 done
 # And then also:
@@ -106,14 +100,16 @@ do
 for GROUP in group2
 do
 TARGET=group3
-sbatch --export=chrom=$chrom,GROUP=$GROUP,TARGET=$TARGET winsfs_k3_angsd.sh
+sbatch --export=chrom=$chrom,GROUP=$GROUP,TARGET=$TARGET 02_winsfs_k3_angsd.sh
 done
 done
+
+# Jobs for each K=5 pairwise group comparison can be submitted in similar fashion. 
 ```
 
-4) Now need to merge chromosome saf files and sum SFS files:
+3) Now need to merge chromosome saf files and sum SFS files:
 ```
-# Merge saf files using realSFS:
+# Merge saf files using realSFS ($POP refers to group here):
 realSFS cat sal01.$POP.saf.idx sal02.$POP.saf.idx -outnames $POP.merged  # list all chrom files to be concatenated at once
 
 # winsfs creates output files with a header that realSFS fst index function doesn't like, so remove header from SFS files first:
@@ -123,29 +119,28 @@ tail -n +2 $file > sfs_noheader/noheader.$file
 done
 
 # In R, sum across SFS files for each population/group:
-# For pops 103 and FR, for example:
-files_103_FR <- list.files(pattern = "*.103\\.FR\\.sfs$")
+# For groups 1 and 2, for example:
+files_group1_group2 <- list.files(pattern = "*.group1\\.group2\\.sfs$")
 # read all files
-files_103_FR <- lapply(files_103_FR, read.table)
+files_group1_group2 <- lapply(files_group1_group2, read.table)
 # sum column-wise
-df_sum_103_FR <- Reduce(`+`, files_103_FR)
+df_sum_group1_group2 <- Reduce(`+`, files_group1_group2)
 # write output
-write.table(df_sum_103_FR, "sums.103.FR.sfs", quote=F, sep="\t", row.names=F, col.names=F)
+write.table(df_sum_group1_group2, "sums.group1.group2.sfs", quote=F, sep="\t", row.names=F, col.names=F)
 ```
 
 
 
-5) Next, need to calculate Fst with realSFS and the saf and sfs files:
+4) Next, need to calculate Fst with realSFS and the saf and sfs files:
 ```
-
-# For each group comparison calculate per-site Fst:
-realSFS fst index $group2.saf.idx $group1.saf.idx -sfs noheader.winsfs.group1.group2.sfs -fstout fst/group2.group1.fst
+# For each group comparison calculate per-locus Fst:
+realSFS fst index $group2.saf.idx $group1.saf.idx -sfs sums.group1.group2.sfs -fstout fst/group2.group1
 
 # Also calculate global weighted Fst:
 realSFS fst stats group2.group1.fst.idx
 ```
 
-6) Lastly, calculate windowed Fst (for window and step size of 10k bp):
+5) Lastly, calculate windowed Fst (for window and step size of 10k bp):
 ```
 realSFS fst stats2 group2.group1.fst.idx -win 10000 -step 10000 > fst_window/group2.group1.fst.txt
 ```
