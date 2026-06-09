@@ -15,4 +15,4 @@ module load samtools
 export projdir=/home/samcrow/scratch/charr_wgs
 
 cat $projdir/scripts/mt_align_sets/NL_dedup_index/$set | \
-   parallel --jobs 32  'samtools index $projdir/mitogenomes/aligned_swedish/{}.mito_swedish_deDup.bam '
+   parallel --jobs 32  'samtools index $projdir/mitogenomes/aligned_acad/{}.mito_acad_deDup.bam '
