@@ -34,18 +34,17 @@ done
 
 
 ### 2) NGSadmix
-A) Run ngsadmix on multiple values of K, with 6 replicates for each. K values chosen are 2-8, as well as 16, 24, 32, 42, 51- these will ideally look at structure at broader level of glacial lineage (expected to have K=2 or 3 groups), working up to the number of sampling locations in the dataset. Do this using script 03_ngsadmix_bigkbld_morek.sh
+A) Run ngsadmix on multiple values of K, with 6 replicates for each. K values chosen are 2-8. These will look at upper levels structure at broader level of glacial lineage. Do this using script 03_ngsadmix_bigkbld_morek.sh
 ```
 # Submit script 03_ngsadmix_bigkbld_morek.sh as follows:
-for kvalue in 2 3 4 5 6 7 8 16 24 32 42 51
+for kvalue in 2 3 4 5 6 7 8 
 do
-for replicate in 1 2 3 4 5 6
+for replicate in 1 2 3 4 5 6 7 8 9 10
 do
 sbatch --export=kvalue=$kvalue,replicate=$replicate 03_ngsadmix_bigkbld_morek.sh
 done
 done
 ```
-Note that in 24 hrs, only Kvalues 2-8 and 16 finished and converged.
 
 B) Evaluate which value of K is best, using approach described in https://baylab.github.io/MarineGenomics/week-9-population-structure-using-ngsadmix.html, which also refers to using this site: https://clumpak.tau.ac.il/bestK.html
 
