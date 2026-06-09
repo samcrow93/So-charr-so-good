@@ -15,8 +15,9 @@ module load bwa-mem2/2.2.1
 #change directory and align all reads for our samples:
 cd /home/samcrow/scratch/charr_wgs/mitogenomes/trimmed_NL
 
-genome=/home/samcrow/scratch/charr_wgs/mitogenomes/refs/swedish_ref_mito.fasta
-refname="swedish"
+# Use the reference mitogenome sequence (NC_000861, Doiron et al. 2002) described as Acadian by Jacobsen et al. (2021) (commonly-used ref in previous mitogenome work for charr):
+genome=/home/samcrow/scratch/charr_wgs/mitogenomes/refs/acad_ref.fasta
+refname="acad"
 
 while read file;
   do echo $file\.bam;
