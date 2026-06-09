@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=8:00:00
-#SBATCH --account=def-ibradbur
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
-#SBATCH --mem=30G
-#SBATCH --out=slurm.%j.%x.out
+#SBATCH --time=
+#SBATCH --account=
+#SBATCH --mail-type=
+#SBATCH --mail-user=
+#SBATCH --mem=
+#SBATCH --out=
 #SBATCH --job-name=saf_k3_angsd_noker
 
 # Here, reference genome used as reference AND as ancestral
