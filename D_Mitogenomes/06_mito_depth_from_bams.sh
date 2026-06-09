@@ -8,7 +8,7 @@
 #SBATCH --out=slurm.%x.%j.out
 #SBATCH --job-name=depthcoverage_from_bams_mito
 
-cd /home/samcrow/scratch/charr_wgs/mitogenomes/aligned_swedish
+cd /home/samcrow/scratch/charr_wgs/mitogenomes/aligned_acad
 
 module load StdEnv/2023 samtools/1.18
 
