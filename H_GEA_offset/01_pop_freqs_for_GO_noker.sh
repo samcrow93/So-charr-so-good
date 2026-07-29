@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --time=2:00:00
-#SBATCH --account=def-ibradbur
+#SBATCH --account=
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=samantha.crowley@dal.ca
+#SBATCH --mail-user=
 #SBATCH --mem=30G
 #SBATCH --out=slurm.%x.%j.out
 #SBATCH --job-name=pop_freqs_for_offset
